@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="ru" class="ru">
+
+<head>
+
+	<meta charset="utf-8">
+	<!-- Removed by WebCopy --><!--<base href="/">--><!-- Removed by WebCopy -->
+
+	<title>SmartCut Online оптимальный линейный раскрой.</title>
+	<meta name="description" content="Этот калькулятор позволяет составить оптимальную схему раскроя линейных изделий. Для раскроя используется наш алгоритм расчета с наилучшим полезным выходом и минимальными отходами.">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.5">
+
+	<!-- Template Basic Images Start -->
+	<meta property="og:image" content="img/logo.png">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="../img/favicon/apple-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="../img/favicon/android-icon-192x192.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="../img/favicon/favicon-96x96.png">
+	<link rel="icon" href="../img/favicon/favicon.ico">
+	<!-- Template Basic Images End -->
+
+	<!-- Custom Browsers Color Start -->
+	<meta name="theme-color" content="#fff">
+	<!-- Custom Browsers Color End -->
+
+	<link rel="stylesheet" href="css/main.min.css">
+	
+	<script src="js/JQuery.js"></script>
+	<script src="js/jquery.cookie.js"></script>
+</head>
+
+<body class="">
+
+	<div class="main">
+		<nav class="top-bar">
+			<ul>
+				<li class="top-drop language"><span><i class="flag-icon flag-icon-ru"></i>Русский<i class="arrow icon-angle-double-down"></i></span></li>
+				<li class="top-drop">
+					<span>Еще<i class="arrow icon-angle-double-down"></i></span>
+					<ul>
+						<li data-open=".signup" class="open-signup logged-hide"><span>Регистрация</span></li>
+						<li data-open=".pro" class="open-pro"><span>Цены / Тарифы</span></li>
+						<li class="to-faq"><span>FAQ</span></li>
+						<li data-open=".support" class="open-support"><span>Поддержка / Контакты</span></li>
+						<li><a target="_blank" href="../lang/terms-ru.html">Пользовательское Соглашение</a></li>
+						<li><a target="_blank" href="../lang/terms-ru.html#requisites">Реквизиты</a></li>
+					</ul>
+				</li>
+				<li data-open=".pro" class="open-pro"><span>PRO</span></li>
+				<li data-open=".login" class="open-login"><span href="#">Вход<i class="icon-login"></i></span>
+				</li>
+				<li class="logout"><span>Выход</span></li>
+			</ul>
+		</nav>
+
+		<div class="content-640 user-email"></div>
+
+		<form id="smartcut" class="smartcut">
+			<table class="in">
+				<tr>
+					<th>№</th>
+					<th>Длина заготовки</th>
+					<th>Количество <span id="count_summ_in"></span></th>
+					<th>Название</th>
+					<th class="all_del_in" title="Очистить список"><i class="icon-cancel"></i></th>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td><input type="number" step="0.01" name="l_zag" min="0" max="100000" maxlength="6" value="6000">
+					</td>
+					<td class="infinity_zag"><i class="icon-infinity"></i></td>
+					<td><input type="text" name="l_zag_id" maxlength="120"></td>
+					<td class="inf_zag_switch"><input type="checkbox" id="inf_zag_switch" checked="checked"><label for="inf_zag_switch"></label></td>
+				</tr>
+				<tr class="str_in">
+					<td class="num_in">2</td>
+					<td><input step="0.01" type="number" name="l_in[]" max="100000" maxlength="6" autocomplete="off">
+					</td>
+					<td><input type="number" name="c_in[]" max="1000000" maxlength="6" autocomplete="off"></td>
+					<td><input type="text" name="id_in[]" maxlength="120"></td>
+					<td class="del_in"><i class="icon-cancel"></i></td>
+				</tr>
+				<tr>
+					<td colspan="5">
+						<div class="submit">
+							<button class="button" id="add_in" type="button"><i class="icon-list-add"></i>Добавить заготовку</button>
+							<button class="button show-save-in" type="button"><i class="icon-floppy"></i></button>
+							<button class="button" type="button" id="open-options">Импорт списка<i class="icon-angle-double-down"></i></button>
+						</div>
+					</td>
+				</tr>
+			</table>
+			<p class="disp-n save-in"><b>Сохранить список (загрузить список можно с помощью <span class="link open-options">функции импорта</span>)</b><textarea readonly=""></textarea></p>
+			<div class="slide">
+				<table class="options">
+					<tr>
+						<td colspan="2" rowspan="2" class="import_input">
+							<textarea id="sm_import_input" placeholder="Введите сюда(в это поле) список в формате &quot;длина-количество&quot; (из Excel и др.). Затем нажмите кнопку ИМПОРТ. Разделитель в списке любой спецсимвол, кроме запятой или точки. Например:
+340m - 33
+260 - 22
+245 12"></textarea>
+						</td>
+						<td class="import_options">
+							<div><label><input type="radio" id="import_in" name="type_import">Импорт заготовок</label></div>
+							<div><label><input type="radio" id="import_out" name="type_import" checked="1">Импорт отрезков</label></div>
+							<div>Формат списка:</div>
+							<div>
+								<label>
+									<input type="radio" name="name_import" id="name_import_not" checked="1">длина - колич.
+								</label>
+								<div>
+									<label>
+										<input type="radio" name="name_import" id="name_import">длина - колич. - назван.
+									</label>
+								</div>
+						</div></td>
+					</tr>
+					<tr>
+						<td><button class="import_submit button" type="button">Импорт</button></td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="others">
+				<div>
+					<label for="ed">Ед.изм.:</label>
+					<input type="text" name="ed" maxlength="50" value="мм">
+				</div>
+				<div class="blade-width-wrp">
+					<label for="t_disk">Толщина лезвия:</label>
+					<input type="number" step="0.001" id="t_disk" name="t_disk" value="0" min="0" max="100000" maxlength="6">
+					<input type="hidden" name="lang_code" value="ru">
+				</div>
+				<div class="sort-by">
+					<label class="form-label">Сортировать по:</label>
+
+					<div class="d-inline-block">
+						<select name="sort-srt">
+							<option value="0" checked="">Кол-ву заготовок</option>
+							<option value="1">Макс. длине отрезка</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<table class="out">
+				<tr>
+					<th>№</th>
+					<th>Длина отрезка</th>
+					<th>Количество <span id="count_summ"></span></th>
+					<th class="name_wrp">Название</th>
+					<th class="all_del" title="Очистить список"><i class="icon-cancel"></i></th>
+				</tr>
+				<tr class="str_out">
+					<td class="num">1</td>
+					<td>
+						<input step="0.001" type="number" name="l[]" max="100000" maxlength="6" autocomplete="off">
+					</td>
+					<td>
+						<input type="number" name="c[]" max="1000000" maxlength="6" autocomplete="off">
+					</td>
+					<td class="name_wrp">
+						<input type="text" name="id[]" maxlength="120">
+					</td>
+					<td class="del"><i class="icon-cancel"></i></td>
+				</tr>
+				<tr>
+					<td colspan="5">
+						<div class="submit">
+							<button class="button add" type="button"><i class="icon-list-add"></i>Добавить отрезок</button>
+							<button class="button show-save-out" type="button"><i class="icon-floppy"></i></button>
+							<button class="button start" type="submit">Раскрой<i class="icon-calc"></i></button>
+						</div>
+						<div class="float">
+							<table>
+								<tr>
+									<td>
+										<div class="submit">
+											<button class="button add" type="button"><i class="icon-list-add"></i>Добавить отрезок</button>
+											<button class="button show-save-out" type="button"><i class="icon-floppy"></i></button>
+											<button class="button start" type="submit">Раскрой<i class="icon-calc"></i></button>
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>
+			<p class="disp-n save-out"><b>Сохранить список (загрузить список можно с помощью <span class="link open-options">функции импорта</span>)</b><textarea readonly=""></textarea></p>
+		</form>
+
+		<div class="preround anim_loaded">
+			<div class="round anim_loaded"></div>
+		</div>
+
+		<div class="load_msg disp-n">
+			<p class="error">Расчет может длиться до 1 минуты</p>
+		</div>
+
+		<div class="res_buttons submit">
+			<button class="show_sizemarker button">Размеры<i class="icon-tab"></i></button>
+			<button class="show_waste button">Остатки</button>
+			<button class="on-full-width button"><span><i class="icon-resize-full"></i></span><span style="display: none;"><i class="icon-resize-small"></i></span></button>
+			<button class="print button"><i class="icon-print"></i>Печать</button>
+			<button class="pdf button">
+				<div class="spinner-border spinner-border-sm" role="status"></div>
+				<i class="icon-file-pdf"></i>.PDF
+			</button>
+		</div>
+
+		<div class="res-wrp">
+			<div id="smartcut_res" class="smartcut_res" spellcheck="false" contenteditable="false"></div>
+		</div>
+
+		<div class="res_float">
+			<div class="res_buttons submit">
+				<button class="show_sizemarker button">Размеры<i class="icon-tab"></i></button>
+				<button class="show_waste button">Остатки</button>
+				<button class="on-full-width button"><span><i class="icon-resize-full"></i></span><span style="display: none;"><i class="icon-resize-small"></i></span></button>
+				<button class="print button"><i class="icon-print"></i>Печать</button>
+				<button class="pdf button">
+					<div class="spinner-border spinner-border-sm" role="status"></div>
+					<i class="icon-file-pdf"></i>.PDF
+				</button>
+			</div>
+		</div>
+
+	</div>
+
+	<div style="display: none;">
+		<div id="lang_support_sended">
+			<p>Отправлено!</p>
+		</div>
+		<div id="lang_signup_first">
+			<p>Для привязки оплаты необходимо выполнить вход или зарегистрироваться!</p>
+		</div>
+		<div id="lang_no_pro_name">
+			<p>Названия деталей можно указывать только в PRO-версии. Желаете приобрести подписку на PRO-версию?</p>
+		</div>
+		<div id="lang_no_pro_waste">
+			<p>Эта функция доступна в PRO-версии. Желаете приобрести подписку на PRO-версию?</p>
+		</div>
+		<div id="lang_no_pro_disk_w">
+			<p>Эта функция доступна в PRO-версии. Желаете приобрести подписку на PRO-версию?</p>
+		</div>
+		<div id="lang_no_pro_func">
+			<p>Эта функция доступна в PRO-версии. Желаете приобрести подписку на PRO-версию?</p>
+		</div>
+		<div id="lang_check_payment">
+			<p>Проверка платежа</p>
+			<div class="spinner-border-wrp">
+				<div class="spinner-border text-primary" role="status"></div>
+			</div>
+		</div>
+		<input type="hidden" name="csrf" form="smartcut" value="jgaa182lklvu15ak8kfjccqo39">
+		<div id="mpp_key_close"><button class="button mpp-close" onclick="$.magnificPopup.close();">Закрыть</button></div>
+		<div id="mpp_key_yes"><button class="button mpp-yes">Да</button></div>
+		<div id="mpp_key_login"><button class="button mpp-login">Вход</button></div>
+		<div id="mpp_key_no"><button class="button" onclick="$.magnificPopup.close();">Нет</button></div>
+
+		<div id="pdf-options-dialog">
+			<div id="pdf-options">
+				<div class="form-group text-center">
+					<label for="pdf-orientation">Ориентация листа:</label>
+					<select id="pdf-orientation" class="form-control" name="orientation">
+						<option value="landscape" selected="">Альбомная</option>
+						<option value="portrait">Книжная</option>
+					</select>
+				</div>
+				<div class="form-group text-center">
+					<label for="pdf-format">Масштаб:</label>
+					<select id="pdf-format" class="form-control" name="format">
+						<option value="a5">25%</option>
+						<option value="a4">50%</option>
+						<option value="a3" selected="">100%</option>
+						<option value="a2">200%</option>
+						<option value="a1">400%</option>
+					</select>
+				</div>
+				<button type="button" class="button pdf-made">
+					<div class="spinner-border spinner-border-sm" role="status"></div>
+					Скачать
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="top icon-angle-double-down"></div>
+
+	
+	<script src="js/my-script.js"></script>
+</body>
+
+</html>
