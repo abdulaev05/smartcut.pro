@@ -217,10 +217,9 @@ jQuery(document).ready(function(){
       $(".smartcut_res").append('<tabel class=\"map_item' + queue + '\"' + 'style="width:100%; border-collapse:collapse; display:block;"></tabel>'); 
           $(".map_item" + queue).append('<tbody class=\"mapItemTBody' + queue + '\"' + 'style="width:100%;display:block;"></tbody>');
               $(".mapItemTBody" + queue).append('<tr class=\"mainItem' + queue + '\"' + 'style=""></tr>');
-                  $(".mainItem" + queue).append('<td class=\"itemRaskhod' + queue + '\"' + 'style="">' + '</td>');
-                  $(".mainItem" + queue).append('<td class=\"srez' + queue + '\"' + 'style=""></td>');
-                      $(".srez" + queue).append('<span class="" style="">' + '</span>');
-                  $(".mainItem" + queue).append('<td class=\"waste_item' + queue + '\"' + 'style="">esf</td>');
+                  $(".mainItem" + queue).append('<td class=\"itemRaskhod' + queue + '\"' + 'style="padding-right: 7px; white-space: nowrap;">' + '3000 * 1' + '</td>');
+                  $(".mainItem" + queue).append('<td class=\"srez' + queue + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + 50 + '%' +'\"' + '>2000</td>');
+                  $(".mainItem" + queue).append('<td class=\"waste_item' + queue + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #eee; text-align: center; width:' + 50 + '%' +'\"' + '>300</td>');
                   
               $(".mapItemTBody" + queue).append('<tr class=\"sizemarkersTr' + queue + '\"' + 'style=""></tr>');
                   $(".sizemarkersTr" + queue).append('<td class=\"sizemarkers' + queue + '\"' + 'style=""></td>');
