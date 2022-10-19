@@ -12,7 +12,6 @@ jQuery(document).ready(function(){
             ar[0] > 0 && ar[1] && ($(".out > tbody > tr:last").before(t), $(".str_out:last input[name='l[]']").val(e), $(".str_out:last input[name='c[]']").val(r), $(".str_out:last input[name='id[]']").val(decodeURIComponent(o)))
         }
         $(".out > tbody > tr:last").before(t), r(), s()
-        console.log("hello")
     }
     if (null != $.cookie("smct_in") && $.cookie("smct_in").length > 3) {
         nci = $.cookie("smct_in").split(",");
@@ -40,33 +39,134 @@ jQuery(document).ready(function(){
   
     let inputL = [];
     $('.out .str_out input[name="l[]"]').each((index , elem) =>{
-      let i = $('.out .str_out input[name="c[]"]')[index].value;
-      for(i ; i > 0 ; i--){
-          inputL = [...inputL , elem.value]
+      let str_outCounter = $('.out .str_out input[name="c[]"]')[index].value;
+      let counter = 0;
+      for(let i = 0 ; i < str_outCounter ; i++){
+        counter++
       }
+      if(elem.value == 0){
+        return true;
+      }
+      inputL = [...inputL , {val : +elem.value , counter: counter}]
     })
-    console.log(inputL.sort((a , b ) => a - b));
+    inputL = inputL.sort((a , b) => a.val - b.val)
   
     
     let inputL_in = [];
     $('.in .str_in input[name="l_in[]"]').each((index , elem) =>{
-      let i = $('.in .str_in input[name="c_in[]"]')[index].value;
-      for(i ; i > 0 ; i--){
-          inputL_in = [...inputL_in , elem.value]
+      let str_inCounter = $('.in .str_in input[name="c_in[]"]')[index].value;
+      let counter = 0;
+      for(let i = 0 ; i < str_inCounter ; i++){
+        counter++
       }
+      if(str_inCounter == 0){
+        return;
+      }
+      inputL_in = [...inputL_in , {val : +elem.value , counter: counter}]
     })
-    console.log(inputL_in.sort((a , b ) => a - b));
-  
-    for(let i = 0 ; i < 1 ; i++){
-      createMapItem(i)
-    }
-  
+    inputL_in = inputL_in.sort((a , b) => a.val - b.val)
     
-  
-  
-  
-  
-  
+    inputLAllArr = [];
+    inputL.forEach((elem , index) =>{
+        for(let j = 0; j < elem.counter; j++){
+            inputLAllArr.push(elem.val)
+        }
+    })
+    inputL_inAllArr = [];
+    inputL_in.forEach((elem , index) =>{
+        for(let j = 0; j < elem.counter; j++){
+            inputL_inAllArr.push(elem.val)
+        }
+    })
+
+    
+    let indexCreateMapItem = 0;
+    let counterFor = 0;
+    let RenderArray = []
+    ///ЦИКЛ ДЛЯ СОЗДАНИЯ МАССИВА РЕНДЕРИНГА
+    do{
+        if(Math.max(...inputL_inAllArr) >= Math.min(...inputLAllArr) && inputL_inAllArr.length){
+            inputL_in.forEach((element , index) => {
+                let inputLClone = [...inputLAllArr.filter(e => e <= element.val).sort((a , b) => a + b , 0)];
+                for(let i = 0; i < element.counter; i++){
+                    minSrez(element.val , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
+                }
+            })
+        }
+        else if($('input[name="l_zag"]').val() >= Math.min(...inputLAllArr)){
+            let element = +$('input[name="l_zag"]').val();
+            let inputLClone = [...inputLAllArr.filter(e => e <= $('input[name="l_zag"]').val()).sort((a , b) => a + b , 0)];
+            minSrez(element , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
+        }else{
+            break;
+        }
+    }while(inputLAllArr.length)
+
+    
+    function minSrez(element , Array , inputLAllArr , inputL_inAllArr, RenderArray){
+        let limit = element;
+        let delNumber = 0;
+        let delArray = [];
+        //РАСЧЕТ ДЛЯ ОПРЕДЕЛЕНИЯ МИНИМАЛЬНОГО СРЕЗА
+        for(let j = Array.length - 1; j >= 0; j--){
+          let value = Array[j];
+          let valueArr = [Array[j]]
+          for(let k = Array.length - 1; k >= 0; k--){
+            if(j == k)continue;
+            if(value + Array[k] > value && value + Array[k] <= limit){
+              value = value + Array[k];
+              valueArr.push(Array[k])
+            }
+          }
+          if(value > delNumber){
+            delNumber = value;
+            delArray = [...valueArr];
+          }
+        }
+        //УДАЛЕНИЕ ИСПОЛЬЗОВАННЫХ ЭЛЕМЕНТОВ ИЗ РАСЧЕТОВ
+        for(let item of delArray){
+            let indexDel = Array.findIndex(e => e == item);
+            let indexDel_inputLAllArr = inputLAllArr.findIndex(e => e == item);
+            Array.splice(indexDel , 1)
+            inputLAllArr.splice(indexDel_inputLAllArr , 1)
+        }
+        let inputL_inAllArrDelIndex = inputL_inAllArr.findIndex(e => e == element);
+        inputL_inAllArr.splice(inputL_inAllArrDelIndex , 1)
+        //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
+        if(delArray.length){
+            if(!!RenderArray.find(e => e.str_in_val == element) && !!RenderArray.find(e => e.str_out_val.toString() == delArray.toString())){
+                RenderArray.find(e => e.str_out_val.toString() == delArray.toString()).str_in_counter++
+            }else{
+                RenderArray.push({
+                str_in_val: element , str_in_counter: 1,
+                str_out_val: delArray,
+                })
+            }
+        }
+    }
+    console.log(RenderArray)
+    console.log(inputLAllArr)
+    console.log(indexCreateMapItem)
+    //РЕНДЕРИНГ
+    RenderArray.forEach((element , index) => {
+        let srezSize = element.str_in_val;
+        let srezCounter = element.str_in_counter;
+        createMapItem(index , srezSize , srezCounter)
+        let sumUsedMaterial = 0;
+        let sumWidthUsedMaterial = 0;
+        element.str_out_val.forEach(e => {
+            let usedMaterial = e;
+            let widthUsedMaterial = e / element.str_in_val * 100;
+            createInputSrez(index , usedMaterial , widthUsedMaterial)
+            sumUsedMaterial += e;
+            sumWidthUsedMaterial += widthUsedMaterial;
+        })
+
+        let remains = element.str_in_val - sumUsedMaterial;
+        let widthRemains = 100 - sumWidthUsedMaterial;
+        createRemains(index , remains , widthRemains)
+    })
+
   
     $(".add").click((function() {
       return t(), $('input[name="l[]"]').last().focus(), !1
@@ -208,29 +308,35 @@ jQuery(document).ready(function(){
           expires: 365
       })
     }
-    function smartcutRes(queue){
+
+
+
+    function smartcutRes(){
       $(".smartcut_res").append('<b class="" style="margin:0 0 20px; padding:0; display:block;">' + 'Использовано:' +'</b>')
       $(".smartcut_res").append('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>');
   
     }
-    function createMapItem(queue){
-      $(".smartcut_res").append('<tabel class=\"map_item' + queue + '\"' + 'style="width:100%; border-collapse:collapse; display:block;"></tabel>'); 
-          $(".map_item" + queue).append('<tbody class=\"mapItemTBody' + queue + '\"' + 'style="width:100%;display:block;"></tbody>');
-              $(".mapItemTBody" + queue).append('<tr class=\"mainItem' + queue + '\"' + 'style=""></tr>');
-                  $(".mainItem" + queue).append('<td class=\"itemRaskhod' + queue + '\"' + 'style="padding-right: 7px; white-space: nowrap;">' + '3000 * 1' + '</td>');
-                  $(".mainItem" + queue).append('<td class=\"srez' + queue + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + 50 + '%' +'\"' + '>2000</td>');
-                  $(".mainItem" + queue).append('<td class=\"waste_item' + queue + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #eee; text-align: center; width:' + 50 + '%' +'\"' + '>300</td>');
-                  
-              $(".mapItemTBody" + queue).append('<tr class=\"sizemarkersTr' + queue + '\"' + 'style=""></tr>');
-                  $(".sizemarkersTr" + queue).append('<td class=\"sizemarkers' + queue + '\"' + 'style=""></td>');
+    function createMapItem(indexCreateMapItem , srezSize , srezCounter){
+      $(".smartcut_res").append('<tabel class=\"map_item' + indexCreateMapItem + '\"' + 'style="width:100%; border-collapse:collapse; display:block; margin-bottom:20px;"></tabel>'); 
+          $(".map_item" + indexCreateMapItem).append('<tbody class=\"mapItemTBody' + indexCreateMapItem + '\"' + 'style="width:100%;display:block;"></tbody>');
+              $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"mainItem' + indexCreateMapItem + '\"' + 'style=""></tr>');
+                  $(".mainItem" + indexCreateMapItem).append('<td class=\"itemRaskhod' + indexCreateMapItem + '\"' + 'style="padding-right: 7px; white-space: nowrap;">' + srezSize + ' * ' + srezCounter + '</td>');
+              $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"sizemarkersTr' + indexCreateMapItem + '\"' + 'style=""></tr>');
+                  $(".sizemarkersTr" + indexCreateMapItem).append('<td class=\"sizemarkers' + indexCreateMapItem + '\"' + 'style=""></td>');
   
   
   
     }
-    function calc(){
-  
+    function createInputSrez(indexCreateMapItem , usedMaterial , widthUsedMaterial){
+        $(".mainItem" + indexCreateMapItem).append('<td class=\"srez' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>');
     }
-  //   c()
+    function createRemains(indexCreateMapItem , remains , widthRemains){
+        $(".mainItem" + indexCreateMapItem).append('<td class=\"waste_item' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #eee; text-align: center; width:' + widthRemains + '%' +'\"' + '>' + remains + $('input[name="ed"]').val() +'</td>');
+
+    }
+
+
+  // c()
   //   function c() {
   //     let e = new Date,
   //         t = document.getElementById("smartcut_res");
