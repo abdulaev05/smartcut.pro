@@ -26,116 +26,112 @@ jQuery(document).ready(function(){
         }
         $(".in > tbody > tr:last").before(o), r(), a()
     }
-  
-    $(".res_buttons").css({
-      display: "flex"
-    })
-    smartcutRes()
-    
-    $(".start").on("click" , (() =>{
-      i();
+
+    $('.start').on('click' , (() =>{
+        i()
     }))
-  
-  
+
+    ////////РАСЧЕТЫ
     let inputL = [];
-    $('.out .str_out input[name="l[]"]').each((index , elem) =>{
-      let str_outCounter = $('.out .str_out input[name="c[]"]')[index].value;
-      let counter = 0;
-      for(let i = 0 ; i < str_outCounter ; i++){
-        counter++
-      }
-      if(elem.value == 0){
-        return true;
-      }
-      inputL = [...inputL , {val : +elem.value , counter: counter}]
+    $('.str_out').each(index =>{
+        let str_out_value = $('input[name="l[]"]')[index].value;
+        let str_out_counter = $('input[name="c[]"]')[index].value;
+        let str_out_name = $('input[name="id[]"]')[index].value;
+        if(str_out_value != 0 && str_out_counter != 0){
+            inputL = [...inputL , {val : +str_out_value , counter: +str_out_counter , materialName: str_out_name}]
+        }
     })
-    inputL = inputL.sort((a , b) => a.val - b.val)
+    inputL = inputL.sort((a , b) => a.val > b.val ? 1 : -1)
   
     
     let inputL_in = [];
-    $('.in .str_in input[name="l_in[]"]').each((index , elem) =>{
-      let str_inCounter = $('.in .str_in input[name="c_in[]"]')[index].value;
-      let counter = 0;
-      for(let i = 0 ; i < str_inCounter ; i++){
-        counter++
-      }
-      if(str_inCounter == 0){
-        return;
-      }
-      inputL_in = [...inputL_in , {val : +elem.value , counter: counter}]
+    $('.str_in').each(index =>{
+        let str_in_value = $('input[name="l_in[]"]')[index].value;
+        let str_in_counter = $('input[name="c_in[]"]')[index].value;
+        let str_in_name = $('input[name="id_in[]"]')[index].value;
+        if(str_in_value != 0 && str_in_counter != 0){
+            inputL_in = [...inputL_in , {val : +str_in_value , counter: +str_in_counter , materialName: str_in_name}]
+        }
     })
-    inputL_in = inputL_in.sort((a , b) => a.val - b.val)
+    inputL_in = inputL_in.sort((a , b) => a.val > b.val ? 1 : -1)
     
-    inputLAllArr = [];
-    inputL.forEach((elem , index) =>{
-        for(let j = 0; j < elem.counter; j++){
-            inputLAllArr.push(elem.val)
-        }
-    })
-    inputL_inAllArr = [];
-    inputL_in.forEach((elem , index) =>{
-        for(let j = 0; j < elem.counter; j++){
-            inputL_inAllArr.push(elem.val)
-        }
-    })
+    let usedInputL = JSON.parse(JSON.stringify(inputL))
 
-    
-    let indexCreateMapItem = 0;
-    let counterFor = 0;
+
     let RenderArray = []
     ///ЦИКЛ ДЛЯ СОЗДАНИЯ МАССИВА РЕНДЕРИНГА
     do{
-        if(Math.max(...inputL_inAllArr) >= Math.min(...inputLAllArr) && inputL_inAllArr.length){
+        let minInputL = inputL.reduce((a , b) => a.val < b.val ? a : b , 0).val;
+        let maxInputL_in = inputL_in.reduce((a , b) => a.val > b.val ? a : b , 0).val;
+        if(maxInputL_in >= minInputL && inputL_in.length){
             inputL_in.forEach((element , index) => {
-                let inputLClone = [...inputLAllArr.filter(e => e <= element.val).sort((a , b) => a + b , 0)];
-                for(let i = 0; i < element.counter; i++){
-                    minSrez(element.val , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
+                let inputLClone = JSON.parse(JSON.stringify(inputL)).filter(e => e.val <= element.val).sort((a , b) => a.val - b.val)
+                for(let i = 1; i <= element.counter; i++){
+                    minSrez(element.val , inputLClone,  RenderArray);
                 }
             })
         }
-        else if($('input[name="l_zag"]').val() >= Math.min(...inputLAllArr)){
+        else if($('input[name="l_zag"]').val() >= minInputL){
             let element = +$('input[name="l_zag"]').val();
-            let inputLClone = [...inputLAllArr.filter(e => e <= $('input[name="l_zag"]').val()).sort((a , b) => a + b , 0)];
-            minSrez(element , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
-        }else{
+            let inputLClone = JSON.parse(JSON.stringify(inputL)).filter(e => e.val <= +$('input[name="l_zag"]').val()).sort((a , b) => a.val - b.val)
+            minSrez(element , inputLClone,  RenderArray);
+        }
+        else{
             break;
         }
-    }while(inputLAllArr.length)
+    }while(inputL.length)
 
-    
-    function minSrez(element , Array , inputLAllArr , inputL_inAllArr, RenderArray){
+    function minSrez(element , Array , RenderArray){
         let limit = element;
         let delNumber = 0;
         let delArray = [];
         //РАСЧЕТ ДЛЯ ОПРЕДЕЛЕНИЯ МИНИМАЛЬНОГО СРЕЗА
-        for(let j = Array.length - 1; j >= 0; j--){
-          let value = Array[j];
-          let valueArr = [Array[j]]
-          for(let k = Array.length - 1; k >= 0; k--){
-            if(j == k)continue;
-            if(value + Array[k] > value && value + Array[k] <= limit){
-              value = value + Array[k];
-              valueArr.push(Array[k])
+        Array.sort((a, b) => a.val < b.val ? 1 : -1).forEach(elem => {
+            for(let j = 1; j <= elem.counter; j++){
+              let value = elem.val;
+              let valueArr = [elem.val]
+              Array.forEach(el =>{
+                for(let k = el.counter; k > 0; k--){
+                  if(j == k && elem == el)continue;
+                  if(value + el.val > value && value + el.val <= limit){
+                    value = value + el.val;
+                    valueArr.push(el.val)
+                  }
+                }
+              })
+              if(value > delNumber){
+                delNumber = value;
+                delArray = [...valueArr];
+              }
             }
-          }
-          if(value > delNumber){
-            delNumber = value;
-            delArray = [...valueArr];
-          }
-        }
+        })
         //УДАЛЕНИЕ ИСПОЛЬЗОВАННЫХ ЭЛЕМЕНТОВ ИЗ РАСЧЕТОВ
         for(let item of delArray){
-            let indexDel = Array.findIndex(e => e == item);
-            let indexDel_inputLAllArr = inputLAllArr.findIndex(e => e == item);
-            Array.splice(indexDel , 1)
-            inputLAllArr.splice(indexDel_inputLAllArr , 1)
+            let indexDel = Array.findIndex(e => e.val == item);
+            let indexDel_inputL = inputL.findIndex(e => e.val == item);
+            if(Array[indexDel].counter == 1){
+                Array.splice(indexDel , 1)
+            }else{
+                Array[indexDel].counter--
+            }
+            if(inputL[indexDel_inputL].counter == 1){
+                inputL.splice(indexDel_inputL , 1)
+            }else{
+                inputL[indexDel_inputL].counter--
+            }
         }
-        let inputL_inAllArrDelIndex = inputL_inAllArr.findIndex(e => e == element);
-        inputL_inAllArr.splice(inputL_inAllArrDelIndex , 1)
-        //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
+        if(inputL_in.reduce((a , b) => a.val > b.val ? a : b , 0).val >= inputL.reduce((a , b) => a.val < b.val ? a : b , 0).val && inputL_in.length){
+            let inputL_inDelIndex = inputL_in.findIndex(e => e.val == element);
+            if(inputL_in[inputL_inDelIndex].counter == 1){
+                inputL_in.splice(inputL_inDelIndex , 1)
+            }else{
+                inputL_in[inputL_inDelIndex].counter--
+            }
+        }
+        // //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
         if(delArray.length){
-            if(!!RenderArray.find(e => e.str_in_val == element) && !!RenderArray.find(e => e.str_out_val.toString() == delArray.toString())){
-                RenderArray.find(e => e.str_out_val.toString() == delArray.toString()).str_in_counter++
+            if(!!RenderArray.find(e => e.str_in_val == element && e.str_out_val.toString() == delArray.toString())){
+                RenderArray.find(e => e.str_in_val.toString() == element && e.str_out_val.toString() == delArray.toString()).str_in_counter++
             }else{
                 RenderArray.push({
                 str_in_val: element , str_in_counter: 1,
@@ -144,38 +140,148 @@ jQuery(document).ready(function(){
             }
         }
     }
-    console.log(RenderArray)
-    console.log(inputLAllArr)
-    console.log(indexCreateMapItem)
-    //РЕНДЕРИНГ
-    RenderArray.forEach((element , index) => {
-        let srezSize = element.str_in_val;
-        let srezCounter = element.str_in_counter;
-        createMapItem(index , srezSize , srezCounter)
-        let sumUsedMaterial = 0;
-        let sumWidthUsedMaterial = 0;
-        element.str_out_val.forEach(e => {
-            let usedMaterial = e;
-            let widthUsedMaterial = e / element.str_in_val * 100;
-            createInputSrez(index , usedMaterial , widthUsedMaterial)
-            sumUsedMaterial += e;
-            sumWidthUsedMaterial += widthUsedMaterial;
-        })
 
-        let remains = element.str_in_val - sumUsedMaterial;
-        let widthRemains = 100 - sumWidthUsedMaterial;
-        createRemains(index , remains , widthRemains)
+    //ОЧИСТКА usedInputL ОТ ОСТАТКОВ inputL
+    inputL.forEach(elem => {
+        usedInputL = usedInputL.filter(e => e.val !== elem.val)
     })
 
+    //РЕНДЕРИНГ
+    // RenderArray.forEach((element , index) => {
+    //     let srezSize = element.str_in_val;
+    //     let srezCounter = element.str_in_counter;
+    //     createMapItem(index , srezSize , srezCounter)
+    //     let sumUsedMaterial = 0;
+    //     let sumWidthUsedMaterial = 0;
+    //     element.str_out_val.forEach(e => {
+    //         let usedMaterial;
+    //         let widthUsedMaterial;
+    //         usedMaterial = e;
+    //         widthUsedMaterial = e / element.str_in_val * 100;
+    //         createInputSrez(index , usedMaterial , widthUsedMaterial)
+
+    //         sumUsedMaterial += e;
+    //         sumWidthUsedMaterial += e / element.str_in_val * 100;
+    //     })
+
+    //     let remains = element.str_in_val - sumUsedMaterial;
+    //     let widthRemains = 100 - sumWidthUsedMaterial;
+    //     if(remains !== 0){
+    //         createRemains(index , remains , widthRemains)
+    //     }
+    // })
+    smartcutRes()
+    
+    
+    // let indexCreateMapItem = 0;
+    // let counterFor = 0;
+    // let RenderArray = []
+    // ///ЦИКЛ ДЛЯ СОЗДАНИЯ МАССИВА РЕНДЕРИНГА
+    // do{
+    //     if(Math.max(...inputL_inAllArr) >= Math.min(...inputLAllArr) && inputL_inAllArr.length){
+    //         inputL_in.forEach((element , index) => {
+    //             let inputLClone = [...inputLAllArr.filter(e => e <= element.val).sort((a , b) => a + b , 0)];
+    //             for(let i = 0; i < element.counter; i++){
+    //                 minSrez(element.val , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
+    //             }
+    //         })
+    //     }
+    //     else if($('input[name="l_zag"]').val() >= Math.min(...inputLAllArr)){
+    //         let element = +$('input[name="l_zag"]').val();
+    //         let inputLClone = [...inputLAllArr.filter(e => e <= $('input[name="l_zag"]').val()).sort((a , b) => a + b , 0)];
+    //         minSrez(element , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
+    //     }else{
+    //         break;
+    //     }
+    // }while(inputLAllArr.length)
+
+    
+    // function minSrez(element , Array , inputLAllArr , inputL_inAllArr, RenderArray){
+    //     let limit = element;
+    //     let delNumber = 0;
+    //     let delArray = [];
+    //     //РАСЧЕТ ДЛЯ ОПРЕДЕЛЕНИЯ МИНИМАЛЬНОГО СРЕЗА
+    //     for(let j = 0; j < Array.length; j++){
+    //       let value = Array[j];
+    //       let valueArr = [Array[j]]
+    //       for(let k = Array.length - 1; k >= 0; k--){
+    //         if(j == k)continue;
+    //         if(value + Array[k] > value && value + Array[k] <= limit){
+    //           value = value + Array[k];
+    //           valueArr.push(Array[k])
+    //         }
+    //       }
+    //       if(value > delNumber){
+    //         delNumber = value;
+    //         delArray = [...valueArr];
+    //       }
+    //     }
+    //     //УДАЛЕНИЕ ИСПОЛЬЗОВАННЫХ ЭЛЕМЕНТОВ ИЗ РАСЧЕТОВ
+    //     for(let item of delArray){
+    //         let indexDel = Array.findIndex(e => e == item);
+    //         let indexDel_inputLAllArr = inputLAllArr.findIndex(e => e == item);
+    //         Array.splice(indexDel , 1)
+    //         inputLAllArr.splice(indexDel_inputLAllArr , 1)
+    //     }
+    //     let inputL_inAllArrDelIndex = inputL_inAllArr.findIndex(e => e == element);
+    //     inputL_inAllArr.splice(inputL_inAllArrDelIndex , 1)
+    //     //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
+    //     if(delArray.length){
+    //         if(!!RenderArray.find(e => e.str_in_val == element) && !!RenderArray.find(e => e.str_out_val.toString() == delArray.toString())){
+    //             RenderArray.find(e => e.str_out_val.toString() == delArray.toString()).str_in_counter++
+    //         }else{
+    //             RenderArray.push({
+    //             str_in_val: element , str_in_counter: 1,
+    //             str_out_val: delArray,
+    //             })
+    //         }
+    //     }
+    // }
+    // //РЕНДЕРИНГ
+    // RenderArray.forEach((element , index) => {
+    //     let srezSize = element.str_in_val;
+    //     let srezCounter = element.str_in_counter;
+    //     createMapItem(index , srezSize , srezCounter)
+    //     let sumUsedMaterial = 0;
+    //     let sumWidthUsedMaterial = 0;
+    //     element.str_out_val.forEach(e => {
+    //         let usedMaterial;
+    //         let widthUsedMaterial;
+    //         usedMaterial = e;
+    //         widthUsedMaterial = e / element.str_in_val * 100;
+    //         createInputSrez(index , usedMaterial , widthUsedMaterial)
+
+    //         sumUsedMaterial += e;
+    //         sumWidthUsedMaterial += e / element.str_in_val * 100;
+    //     })
+
+    //     let remains = element.str_in_val - sumUsedMaterial;
+    //     let widthRemains = 100 - sumWidthUsedMaterial;
+    //     if(remains !== 0){
+    //         createRemains(index , remains , widthRemains)
+    //     }
+    // })
+
+    ///////////////////////////////////////////////////////////////////////////
+
   
+    $(".res_buttons").css({
+      display: "flex"
+    })
+
     $(".add").click((function() {
       return t(), $('input[name="l[]"]').last().focus(), !1
     }))
     $("#add_in").click((function() {
       return n(), $('input[name="l_in[]"]').last().focus(), !1
     }))
-  
-  
+    //ДОБАВЛЕНИЕ ДОПОЛНИТЕЛЬНОГО INPUT ПРИ BLUR
+    $(".out").on("input keyup change", 'input[name="c[]"]:last', (function() {
+        $(this).val() > 0 && t()
+    })) 
+    $(".in").on("input keyup change", 'input[name="c_in[]"]:last', (function() {
+        $(this).val() > 0 && n()
+    }))
   
   
   
@@ -195,20 +301,35 @@ jQuery(document).ready(function(){
       $(".str_out").each((function() {
           $(".str_out").length > 1 && $(this).remove()
       }))
-      r();
+      r(), s();
       removeCookieSmct_out();
     }))
     $(".all_del_in").click((function() {
       $(".str_in").each((function() {
           $(".str_in").length > 1 && $(this).remove()
       }))
-      r();
+      r(), a();
       removeCookieSmct_in();
     }))
     
+    //КНОПКА ДЛЯ PDF ФАЙЛА
+    $(".pdf").click((function(){
+        $(".res-wrp").printThis();
+    }))
+    //КНОПКА ДЛЯ ПОЛНОГО ЭКРАНА 
+    $(".on-full-width").click((function() {
+        $(".cutting_name textarea").css("width", ""), $(".on-full-width span").toggle(), $("#smartcut_res").toggleClass("full-width"), v()
+    }))
   
   
-  
+
+    //АВТОУВЕЛИЧЕНИЕ TEXTAREA ПРИ ПЕРЕПОЛНЕНИИ
+    $("#cut-name").on('keyup', function(){
+        if(this.scrollTop > 0){
+          this.style.height = this.scrollHeight + "px";
+        }
+    });
+    
   
     function l() {
         $(".pro-user .show_waste").addClass("active"), $(".waste").show()
@@ -310,30 +431,146 @@ jQuery(document).ready(function(){
     }
 
 
+    function smartcutRes(srezSize , srezCounter){
+        $('<label class="cutting_name" spellcheck="false" style="min-height: 320px;" contenteditable="true">'
+            + ('<textarea id="cut-name" placeholder="Название и описание" value style="">'+'</textarea>')
+        +'</label>').appendTo(".smartcut_res")
 
-    function smartcutRes(){
-      $(".smartcut_res").append('<b class="" style="margin:0 0 20px; padding:0; display:block;">' + 'Использовано:' +'</b>')
-      $(".smartcut_res").append('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>');
-  
-    }
-    function createMapItem(indexCreateMapItem , srezSize , srezCounter){
-      $(".smartcut_res").append('<tabel class=\"map_item' + indexCreateMapItem + '\"' + 'style="width:100%; border-collapse:collapse; display:block; margin-bottom:20px;"></tabel>'); 
-          $(".map_item" + indexCreateMapItem).append('<tbody class=\"mapItemTBody' + indexCreateMapItem + '\"' + 'style="width:100%;display:block;"></tbody>');
-              $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"mainItem' + indexCreateMapItem + '\"' + 'style=""></tr>');
-                  $(".mainItem" + indexCreateMapItem).append('<td class=\"itemRaskhod' + indexCreateMapItem + '\"' + 'style="padding-right: 7px; white-space: nowrap;">' + srezSize + ' * ' + srezCounter + '</td>');
-              $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"sizemarkersTr' + indexCreateMapItem + '\"' + 'style=""></tr>');
-                  $(".sizemarkersTr" + indexCreateMapItem).append('<td class=\"sizemarkers' + indexCreateMapItem + '\"' + 'style=""></td>');
-  
-  
-  
-    }
-    function createInputSrez(indexCreateMapItem , usedMaterial , widthUsedMaterial){
-        $(".mainItem" + indexCreateMapItem).append('<td class=\"srez' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>');
-    }
-    function createRemains(indexCreateMapItem , remains , widthRemains){
-        $(".mainItem" + indexCreateMapItem).append('<td class=\"waste_item' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #eee; text-align: center; width:' + widthRemains + '%' +'\"' + '>' + remains + $('input[name="ed"]').val() +'</td>');
+        $('<div class="" style="margin:0 0 20px; padding:0; display:block;">'
+            +'<b>Использовано: </b>'
+            +usedInputL.map((element , index) => {
+                return '<br/>' + '<string>' + element.val + $('input[name="ed"]').val() + ' x ' + element.counter + ' шт.' + '</string>'
+            }).join('')
+            +'<br/>'
+            +'<string>' + ' = ' + usedInputL.reduce((a , b) => a += b.val * b.counter , 0) + '</string>'
+        +'</div>').appendTo(".smartcut_res")
 
+        $('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>').appendTo(".smartcut_res");
+
+        //СОЗДАНИЕ TABLE MAP
+        RenderArray.map(element =>{
+            let srezSize = element.str_in_val;
+            let srezCounter = element.str_in_counter;
+            let sumUsedMaterial = element.str_out_val.reduce((a , b) => a + b , 0);
+            let sumWidthUsedMaterial = element.str_out_val.reduce((a , b) => a + b , 0) / element.str_in_val * 100;
+            let remains = element.str_in_val - sumUsedMaterial;
+            let widthRemains = 100 - sumWidthUsedMaterial;
+            if(remains !== 0){
+                return (
+                $('<table class="map_item">'
+                    +'<tbody>'
+                        +'<tr>'
+                            +'<td>' 
+                                + srezSize + ' x ' + srezCounter
+                            +'</td>'
+                            +element.str_out_val.map(e => {
+                                let usedMaterial;
+                                let widthUsedMaterial;
+                                usedMaterial = e;
+                                widthUsedMaterial = e / element.str_in_val * 100;
+                                return '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                            }).join('')
+                            +'<td class="waste_item" style=\"width:' + widthRemains + '%' +'\"' + '>' + remains + $('input[name="ed"]').val() +'</td>'
+                        +'</tr>'
+                        +'<tr class="sizemarkers">'
+                            +'<td>' +'</td>'
+                            +element.str_out_val.map(e => {
+                                let usedMaterial;
+                                let widthUsedMaterial;
+                                usedMaterial = e;
+                                widthUsedMaterial = e / element.str_in_val * 100;
+                                return (
+                                    '<td>'
+                                        +'<div>' 
+                                            +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
+                                        +'</div>'
+                                    +'</td>')
+                            }).join('')
+                            +'<td class="marker-disk-waste">' +'</td>'
+                        +'</tr>'
+                    +'</tbody>'
+                +'</table>').appendTo(".smartcut_res")
+                )
+            }else{
+                return (
+                $('<table class="map_item">'
+                    +'<tbody>'
+                        +'<tr>'
+                            +'<td>' 
+                                + srezSize + ' x ' + srezCounter
+                            +'</td>'
+                            +element.str_out_val.map(e => {
+                                let usedMaterial;
+                                let widthUsedMaterial;
+                                usedMaterial = e;
+                                widthUsedMaterial = e / element.str_in_val * 100;
+                                return '<td style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                            }).join('')
+                        +'</tr>'
+                        +'<tr class="sizemarkers">' 
+                            +'<td>' +'</td>'
+                            +element.str_out_val.map(e => {
+                                let usedMaterial;
+                                let widthUsedMaterial;
+                                usedMaterial = e;
+                                widthUsedMaterial = e / element.str_in_val * 100;
+                                return (
+                                    '<td>'
+                                        +'<div>' 
+                                            +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
+                                        +'</div>'
+                                    +'</td>')
+                            }).join('')
+                            +'<td class="marker-disk-waste">' +'</td>'
+                        +'</tr>'
+                    +'</tbody>'
+                +'</table>').appendTo(".smartcut_res")
+                )
+            }
+        })
+
+        +$('<br/>').appendTo(".smartcut_res");
+        +$('<br/>').appendTo(".smartcut_res");
+        +$('<div class="string">' + 'Польза: ' + (usedInputL.reduce((a , b) => a += b.val * b.counter , 0) / RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) * 100).toFixed(5) + '%' + '</div>').appendTo(".smartcut_res");
+        +$('<div class="string">' + 'Отход: ' + ((RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) - usedInputL.reduce((a , b) => a += b.val * b.counter , 0)) / RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) * 100).toFixed(5) + '% ' + '(' + (RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) - usedInputL.reduce((a , b) => a += b.val * b.counter , 0)) + $('input[name="ed"]').val() + ')' + '</div>').appendTo(".smartcut_res");
+        console.log(RenderArray)
+  
     }
+    // function smartcutRes(){
+    //   $(".smartcut_res").append('<label class="cutting_name" spellcheck="false" style="min-height: 320px;" contenteditable="true">'+'</label>')
+    //     $(".cutting_name").append('<textarea id="cut-name" placeholder="Название и описание" value style="">'+'</textarea>')
+    //   $(".smartcut_res").append
+    //     ('<div class="" style="margin:0 0 20px; padding:0; display:block;">'
+    //         + '<b>Использовано: </b>' 
+    //         + '<br/>'
+    //     +'</div>')
+    //   $(".smartcut_res").append('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>');
+  
+    // }
+    // function createMapItem(indexCreateMapItem , srezSize , srezCounter){
+    //   $(".smartcut_res").append('<tabel class=\"map_item' + indexCreateMapItem + '\"' + 'style="width:100%; border-collapse:collapse; display:block; margin-bottom:20px;"></tabel>'); 
+    //       $(".map_item" + indexCreateMapItem).append('<tbody class=\"mapItemTBody' + indexCreateMapItem + '\"' + 'style="width:100%;display:block;"></tbody>');
+    //           $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"mainItem' + indexCreateMapItem + '\"' + 'style=""></tr>');
+    //               $(".mainItem" + indexCreateMapItem).append('<td class=\"itemRaskhod' + indexCreateMapItem + '\"' + 'style="padding-right: 7px; white-space: nowrap;">' + srezSize + ' * ' + srezCounter + '</td>');
+    //           $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"sizemarkers' + indexCreateMapItem + '\"' + 'style=""></tr>');
+    //               $(".sizemarkers" + indexCreateMapItem).append('<td class="" style=""></td>');
+  
+  
+  
+    // }
+    // function createInputSrez(indexCreateMapItem , usedMaterial , widthUsedMaterial){
+    //     $(".mainItem" + indexCreateMapItem).append('<td class=\"srez' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>');
+    //     $(".sizemarkers" + indexCreateMapItem).append
+    //     ('<td class="" style="background-color: #fff; border: none; border-right: 1px dashed; padding: 0 1px 4px 0; text-align: right;">'
+    //         + ('<div style="position: relative; padding: 8px 0 0;">'
+    //             + ('<span style="border-bottom: 0.5px solid #333; position: relative; margin: 0 2px; display: inline-block;">' + usedMaterial + $('input[name="ed"]').val() + '</span>')
+    //         + '</div>')
+    //     + '</td>');
+    // }
+    // function createRemains(indexCreateMapItem , remains , widthRemains){
+    //     $(".mainItem" + indexCreateMapItem).append('<td class=\"waste_item' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #eee; text-align: center; width:' + widthRemains + '%' +'\"' + '>' + remains + $('input[name="ed"]').val() +'</td>');
+
+    // }
 
 
   // c()
