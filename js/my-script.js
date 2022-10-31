@@ -668,7 +668,7 @@ jQuery(document).ready(function(){
                     }
                 }).join('')
                 +'<br/>'
-                +'<string>' + ' = ' + RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) + '</string>'
+                +'<string>' + ' = ' + usedInput_in.reduce((a , b) => a += b.val * b.counter , 0) + '</string>'
             +'</div>').appendTo(".smartcut_res")
         }
   
