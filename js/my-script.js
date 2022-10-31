@@ -1,6 +1,6 @@
 
 jQuery(document).ready(function(){
-    if (null != $.cookie("smct_l") && "" != $.cookie("smct_l") && $('input[name="l_zag"]').val($.cookie("smct_l")), null != $.cookie("smct_tdisk") && "" != $.cookie("smct_tdisk") && $('input[name="t_disk"]').val($.cookie("smct_tdisk")), null != $.cookie("smct_l_zag_id") && "" != $.cookie("smct_l_zag_id") && $('input[name="l_zag_id"]').val($.cookie("smct_l_zag_id")), null != $.cookie("smct_ed") && "" != $.cookie("smct_ed") && $('input[name="ed"]').val($.cookie("smct_ed")), null != $.cookie("smct_out") && $.cookie("smct_out").length > 3) {
+    if (null != $.cookie("smct_l") && "" != $.cookie("smct_l") && $('input[name="l_zag"]').val($.cookie("smct_l")), null != $.cookie("smct_tdisk") && "" != $.cookie("smct_tdisk") && $('input[name="t_disk"]').val($.cookie("smct_tdisk")), null != $.cookie("smct_usefulRemainsInput") && "" != $.cookie("smct_usefulRemainsInput") && $('input[name="usefulRemainsInput"]').val($.cookie('smct_usefulRemainsInput')), null != $.cookie("smct_l_zag_id") && "" != $.cookie("smct_l_zag_id") && $('input[name="l_zag_id"]').val($.cookie("smct_l_zag_id")), null != $.cookie("smct_ed") && "" != $.cookie("smct_ed") && $('input[name="ed"]').val($.cookie("smct_ed")), null != $.cookie("smct_out") && $.cookie("smct_out").length > 3) {
         nc = $.cookie("smct_out").split(",");
         let t = '<tr class="str_out">' + $(".str_out:last").html() + "</tr>";
         nc.length > 0 && $(".str_out").remove();
@@ -56,59 +56,79 @@ jQuery(document).ready(function(){
     inputL_in = inputL_in.sort((a , b) => a.val > b.val ? 1 : -1)
     
     let usedInputL = JSON.parse(JSON.stringify(inputL))
-
-
+    let inputL_inClone =  JSON.parse(JSON.stringify(inputL_in));
     let RenderArray = []
+    let pilkaSrez = +$('input[name="t_disk"]').val()
     ///ЦИКЛ ДЛЯ СОЗДАНИЯ МАССИВА РЕНДЕРИНГА
     do{
         let minInputL = inputL.reduce((a , b) => a.val < b.val ? a : b , 0).val;
-        let maxInputL_in = inputL_in.reduce((a , b) => a.val > b.val ? a : b , 0).val;
-        if(maxInputL_in >= minInputL && inputL_in.length){
+        let maxInputL_in = inputL_inClone.reduce((a , b) => a.val > b.val ? a : b , 0).val;
+        if(maxInputL_in >= minInputL && inputL_inClone.length){
             inputL_in.forEach((element , index) => {
-                let inputLClone = JSON.parse(JSON.stringify(inputL)).filter(e => e.val <= element.val).sort((a , b) => a.val - b.val)
+                let inputLClone = JSON.parse(JSON.stringify(inputL)).filter(e => e.val <= element.val).sort((a , b) => a.val > b.val ? 1 : -1)
                 for(let i = 1; i <= element.counter; i++){
-                    minSrez(element.val , inputLClone,  RenderArray);
+                    minSrez(element.val , inputLClone, inputL_inClone,  RenderArray);
                 }
             })
         }
         else if($('input[name="l_zag"]').val() >= minInputL){
             let element = +$('input[name="l_zag"]').val();
-            let inputLClone = JSON.parse(JSON.stringify(inputL)).filter(e => e.val <= +$('input[name="l_zag"]').val()).sort((a , b) => a.val - b.val)
-            minSrez(element , inputLClone,  RenderArray);
+            let inputLClone = JSON.parse(JSON.stringify(inputL)).filter(e => e.val <= +$('input[name="l_zag"]').val()).sort((a , b) => a.val > b.val ? 1 : -1)
+            minSrez(element , inputLClone, inputL_inClone,  RenderArray);
         }
         else{
             break;
         }
     }while(inputL.length)
 
-    function minSrez(element , Array , RenderArray){
+    function minSrez(element , Array , Array_in , RenderArray){
         let limit = element;
         let delNumber = 0;
         let delArray = [];
         //РАСЧЕТ ДЛЯ ОПРЕДЕЛЕНИЯ МИНИМАЛЬНОГО СРЕЗА
-        Array.sort((a, b) => a.val < b.val ? 1 : -1).forEach(elem => {
+        let ArrayReverse = [...Array.sort((a, b) => a.val < b.val ? 1 : -1)]
+        Array.sort((a, b) => a.val > b.val ? 1 : -1).forEach(elem => {
             for(let j = 1; j <= elem.counter; j++){
               let value = elem.val;
-              let valueArr = [elem.val]
-              Array.forEach(el =>{
+              let valueArr = [{val: elem.val , materialName: elem.materialName}];
+              ArrayReverse.forEach(el =>{
                 for(let k = el.counter; k > 0; k--){
                   if(j == k && elem == el)continue;
-                  if(value + el.val > value && value + el.val <= limit){
-                    value = value + el.val;
-                    valueArr.push(el.val)
+                  if(value + el.val + pilkaSrez > value && value + el.val + pilkaSrez <= limit){
+                    value = value + el.val + pilkaSrez;
+                    valueArr.push({val: el.val , materialName: el.materialName})
                   }
                 }
               })
               if(value > delNumber){
                 delNumber = value;
-                delArray = [...valueArr];
+                delArray = JSON.parse(JSON.stringify(valueArr));
               }
             }
         })
+        //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
+        if(delArray.length){
+            if(!!RenderArray.find(e => e.str_in_val == element && JSON.stringify(e.str_out_val) == JSON.stringify(delArray))){
+                RenderArray.find(e => e.str_in_val == element && JSON.stringify(e.str_out_val) == JSON.stringify(delArray)).str_in_counter++
+            }else{
+                RenderArray.push({
+                str_in_val: element , str_in_counter: 1,
+                str_out_val: delArray,
+                })
+            }
+        }
         //УДАЛЕНИЕ ИСПОЛЬЗОВАННЫХ ЭЛЕМЕНТОВ ИЗ РАСЧЕТОВ
+        if(Array_in.reduce((a , b) => a.val > b.val ? a : b , 0).val >= Array.reduce((a , b) => a.val < b.val ? a : b , 0).val && Array_in.length){
+            let Array_inDelIndex = Array_in.findIndex(e => e.val == element);
+            if(Array_in[Array_inDelIndex].counter == 1){
+                Array_in.splice(Array_inDelIndex , 1)
+            }else{
+                Array_in[Array_inDelIndex].counter--
+            }
+        }
         for(let item of delArray){
-            let indexDel = Array.findIndex(e => e.val == item);
-            let indexDel_inputL = inputL.findIndex(e => e.val == item);
+            let indexDel = Array.findIndex(e =>e.val == item.val && e.materialName == item.materialName);
+            let indexDel_inputL = inputL.findIndex(e => e.val == item.val && e.materialName == item.materialName);
             if(Array[indexDel].counter == 1){
                 Array.splice(indexDel , 1)
             }else{
@@ -120,56 +140,40 @@ jQuery(document).ready(function(){
                 inputL[indexDel_inputL].counter--
             }
         }
-        if(inputL_in.reduce((a , b) => a.val > b.val ? a : b , 0).val >= inputL.reduce((a , b) => a.val < b.val ? a : b , 0).val && inputL_in.length){
-            let inputL_inDelIndex = inputL_in.findIndex(e => e.val == element);
-            if(inputL_in[inputL_inDelIndex].counter == 1){
-                inputL_in.splice(inputL_inDelIndex , 1)
-            }else{
-                inputL_in[inputL_inDelIndex].counter--
-            }
-        }
-        // //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
-        if(delArray.length){
-            if(!!RenderArray.find(e => e.str_in_val == element && e.str_out_val.toString() == delArray.toString())){
-                RenderArray.find(e => e.str_in_val.toString() == element && e.str_out_val.toString() == delArray.toString()).str_in_counter++
-            }else{
-                RenderArray.push({
-                str_in_val: element , str_in_counter: 1,
-                str_out_val: delArray,
-                })
-            }
-        }
     }
 
     //ОЧИСТКА usedInputL ОТ ОСТАТКОВ inputL
     inputL.forEach(elem => {
         usedInputL = usedInputL.filter(e => e.val !== elem.val)
     })
-
-    //РЕНДЕРИНГ
-    // RenderArray.forEach((element , index) => {
-    //     let srezSize = element.str_in_val;
-    //     let srezCounter = element.str_in_counter;
-    //     createMapItem(index , srezSize , srezCounter)
-    //     let sumUsedMaterial = 0;
-    //     let sumWidthUsedMaterial = 0;
-    //     element.str_out_val.forEach(e => {
-    //         let usedMaterial;
-    //         let widthUsedMaterial;
-    //         usedMaterial = e;
-    //         widthUsedMaterial = e / element.str_in_val * 100;
-    //         createInputSrez(index , usedMaterial , widthUsedMaterial)
-
-    //         sumUsedMaterial += e;
-    //         sumWidthUsedMaterial += e / element.str_in_val * 100;
-    //     })
-
-    //     let remains = element.str_in_val - sumUsedMaterial;
-    //     let widthRemains = 100 - sumWidthUsedMaterial;
-    //     if(remains !== 0){
-    //         createRemains(index , remains , widthRemains)
-    //     }
-    // })
+    //СОЗДАНИЕ МАССИВА С ОСТАТКАМИ
+    let usefulRemainsArr = JSON.parse(JSON.stringify(inputL_inClone));
+    RenderArray.forEach(element =>{
+        let sumUsedMaterial = element.str_out_val.reduce((a , b) => a + b.val , 0) + pilkaSrez * (element.str_out_val.length);
+        let remains = element.str_in_val - sumUsedMaterial >= 0 ? element.str_in_val - sumUsedMaterial : 0;
+        if(remains !== 0 && remains >= +$('input[name="usefulRemainsInput"]').val()){
+            for(let i = 0; i < element.str_in_counter; i++){
+                if(usefulRemainsArr.find(e => e.val == remains)){
+                    usefulRemainsArr.find(e => e.val == remains).counter++
+                }else{
+                    usefulRemainsArr.push({val:remains , counter: 1})
+                }
+            }
+        }
+    })
+    usefulRemainsArr = usefulRemainsArr.sort((a, b) => a.val > b.val ? 1 : -1)
+    //СОЗДАНИЕ usedInput_in 
+    let usedInput_in = []
+    RenderArray.forEach(element =>{
+        console.log(element.str_in_val)
+        if(!!usedInput_in.find(e => e.val == element.str_in_val)){
+            usedInput_in.find(e => e.val == element.str_in_val).counter += element.str_in_counter
+        }else{
+            usedInput_in.push({
+                val: element.str_in_val , counter: element.str_in_counter
+            })
+        }
+    })
     smartcutRes()
     
     
@@ -287,14 +291,14 @@ jQuery(document).ready(function(){
   
     $(".out").on("click", ".del", (function() {
       ! function(e) {
-          $(".str_out").length > 1 ? ($(e).parent().remove(), r(), s()) : $('input[name="l[]"], input[name="c[]"], input[name="id[]"]').val("");
-          i();
+          $(".str_out").length > 1 ? ($(e).parent().remove()) : $('input[name="l[]"], input[name="c[]"], input[name="id[]"]').val("");
+          r(), s() ,i();
       }(this), m("out")
     }))
     $(".in").on("click", ".del_in", (function() {
       ! function(e) {
-          $(".str_in").length > 1 ? ($(e).parent().remove(), r(), a()) : $('input[name="l_in[]"], input[name="c_in[]"], input[name="id_in[]"]').val("");
-          i()
+          $(".str_in").length > 1 ? ($(e).parent().remove()) : $('input[name="l_in[]"], input[name="c_in[]"], input[name="id_in[]"]').val("");
+          r(), a() ,i()
       }(this), m("in")
     }))
     $(".all_del").click((function() {
@@ -320,6 +324,43 @@ jQuery(document).ready(function(){
     $(".on-full-width").click((function() {
         $(".cutting_name textarea").css("width", ""), $(".on-full-width span").toggle(), $("#smartcut_res").toggleClass("full-width"), v()
     }))
+    //СКРЫТИЕ 
+    $(".show_sizemarker").click((function() {
+        $(".sizemarkers").toggle(), y(), v()
+    }))
+    //МОДАЛЬНОЕ ОКНО
+    $(".show_waste").on('click' , function(e){
+        $(".modal")[0].style.display = 'flex'
+    })
+    $(".button_no").on('click' , function(e){
+        e.preventDefault()
+        $(".modal")[0].style.display = 'none'
+    })
+    $(".button_yes").on('click' , function(e){
+        $(".str_in").each((function() {
+            $(".str_in").length > 1 && $(this).remove()
+        }))
+        r(), a();
+        removeCookieSmct_in();
+        $(".str_out").each((function() {
+            $(".str_out").length > 1 && $(this).remove()
+        }))
+        r(), s();
+        removeCookieSmct_out();
+        
+        for(let i of usefulRemainsArr){
+            $('input[name="l_in[]"]:last').val(i.val)
+            $('input[name="c_in[]"]:last').val(i.counter)
+            n(), r();
+        }
+        i()
+        $(".modal")[0].style.display = 'none'
+    })
+    window.onclick = function(event){
+        if(event.target == $(".modal")[0]){
+            $(".modal")[0].style.display = 'none'
+        }
+    }
   
   
 
@@ -383,7 +424,7 @@ jQuery(document).ready(function(){
         $(window).scrollTop() + $(window).height() > $("#smartcut_res").offset().top - 30 && $(window).scrollTop() + $(window).height() < $("#smartcut_res").offset().top + $("#smartcut_res").height() ? $(".top").css("left", "calc(50% + " + ($("#smartcut_res").width() / 2 + 32) + "px)") : $(".top").css("left", "")
     }
     function i() {
-        var e, t, n, r, i = "", a = "";
+        let e, t, n, r, i = "", a = "";
         $(".str_out").each((function() {
             e = $(this).find('input[name="l[]"]').val(), t = $(this).find('input[name="c[]"]').val(), id = encodeURIComponent($(this).find('input[name="id[]"]').val()), e > 0 && t > 0 && (i = i + e + "-" + t + "-" + id + ",")
         })), 
@@ -409,9 +450,10 @@ jQuery(document).ready(function(){
         }), 
         $.cookie("smct_ed", $('input[name="ed"]').val(), {
             expires: 365
+        }),
+        $.cookie("smct_usefulRemainsInput", $('input[name="usefulRemainsInput"]').val(), {
+            expires: 365
         });
-         console.log($.cookie("smct_out"))
-         console.log($.cookie("smct_in"))
     }
     function removeCookieSmct_out(){
       $.cookie("smct_out", '', {
@@ -430,182 +472,205 @@ jQuery(document).ready(function(){
       })
     }
 
+    function smartcutRes(){
+        let UsedOtkhod = 0;
 
-    function smartcutRes(srezSize , srezCounter){
         $('<label class="cutting_name" spellcheck="false" style="min-height: 320px;" contenteditable="true">'
             + ('<textarea id="cut-name" placeholder="Название и описание" value style="">'+'</textarea>')
         +'</label>').appendTo(".smartcut_res")
 
-        $('<div class="" style="margin:0 0 20px; padding:0; display:block;">'
-            +'<b>Использовано: </b>'
-            +usedInputL.map((element , index) => {
-                return '<br/>' + '<string>' + element.val + $('input[name="ed"]').val() + ' x ' + element.counter + ' шт.' + '</string>'
-            }).join('')
-            +'<br/>'
-            +'<string>' + ' = ' + usedInputL.reduce((a , b) => a += b.val * b.counter , 0) + '</string>'
-        +'</div>').appendTo(".smartcut_res")
+        if(RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) !== 0 ){
+            $('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>').appendTo(".smartcut_res");
 
-        $('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>').appendTo(".smartcut_res");
+            //СОЗДАНИЕ TABLE MAP
+            RenderArray.map(element =>{
+                let srezSize = element.str_in_val;
+                let srezCounter = element.str_in_counter;
+                let sumUsedMaterial = element.str_out_val.reduce((a , b) => a + b.val , 0) + pilkaSrez * (element.str_out_val.length);
+                let sumWidthUsedMaterial = (element.str_out_val.reduce((a , b) => a + b.val , 0) + pilkaSrez * (element.str_out_val.length)) / element.str_in_val * 100;
+                let remains = element.str_in_val - sumUsedMaterial >= 0 ? element.str_in_val - sumUsedMaterial : 0;
+                let widthRemains = 100 - sumWidthUsedMaterial;
+                UsedOtkhod += remains;
+                if(remains !== 0){
+                    return (
+                    $('<table class="map_item">'
+                        +'<tbody>'
+                            +'<tr>'
+                                +'<td>' 
+                                    + srezSize + ' x ' + srezCounter
+                                +'</td>'
+                                +element.str_out_val.map((e , index) => {
+                                    let usedMaterial = e.val;
+                                    let usedMaterialName = e.materialName;
+                                    let widthUsedMaterial = e.val / element.str_in_val * 100;
+                                    if(usedMaterialName !== ''){
+                                        if(pilkaSrez !== 0){
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                +'<td id="pilkaSrez">' + '</td>'
+                                            )
+                                        }else{
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                            )
+                                        }
+                                    }else{
+                                        if(pilkaSrez !== 0){
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                +'<td id="pilkaSrez">' + '</td>'
+                                            )
+                                        }else{
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                            )
+                                        }
+                                    }
+                                }).join('')
+                                +'<td class="waste_item" style=\"width:' + widthRemains + '%' +'\"' + '>' + remains + $('input[name="ed"]').val() +'</td>'
+                            +'</tr>'
+                            +'<tr class="sizemarkers">'
+                                +'<td>' + '</td>'
+                                +element.str_out_val.map((e , index) => {
+                                    let usedMaterial;
+                                    let widthUsedMaterial;
+                                    usedMaterial = e.val;
+                                    widthUsedMaterial = e.val / element.str_in_val * 100;
+                                    if(pilkaSrez !== 0){
+                                        return (
+                                            '<td>'
+                                                +'<div>' 
+                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
+                                                +'</div>'
+                                            +'</td>'
+                                            +'<td>' + '</td>'
+                                        )
+                                    }else{
+                                        return (
+                                            '<td>'
+                                                +'<div>' 
+                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
+                                                +'</div>'
+                                            +'</td>'
+                                        )
+                                    }
+                                }).join('')
+                                +'<td class="marker-disk-waste">' +'</td>'
+                            +'</tr>'
+                        +'</tbody>'
+                    +'</table>').appendTo(".smartcut_res")
+                    )
+                }else{
+                    return (
+                    $('<table class="map_item">'
+                        +'<tbody>'
+                            +'<tr>'
+                                +'<td>' 
+                                    + srezSize + ' x ' + srezCounter
+                                +'</td>'
+                                +element.str_out_val.map((e , index) => {
+                                    let usedMaterial = e.val;
+                                    let usedMaterialName = e.materialName;
+                                    let widthUsedMaterial = e.val / element.str_in_val * 100;
+                                    if(usedMaterialName !== ''){
+                                        if(((element.str_in_val - usedMaterial * element.str_out_val.length - pilkaSrez * (element.str_out_val.length - 1)) !== 0 || (index !== element.str_out_val.length - 1)) && pilkaSrez !== 0){
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                +'<td id="pilkaSrez">' + '</td>'
+                                            )
+                                        }
+                                        else{
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                            )
+                                        }
+                                    }else{
+                                        if(((element.str_in_val - usedMaterial * element.str_out_val.length - pilkaSrez * (element.str_out_val.length - 1)) !== 0 || (index !== element.str_out_val.length - 1)) && pilkaSrez !== 0){
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                +'<td id="pilkaSrez">' + '</td>'
+                                            )
+                                        }
+                                        else{
+                                            return (
+                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                            )
+                                        }
+                                    }
+                                }).join('')
+                            +'</tr>'
+                            +'<tr class="sizemarkers">' 
+                                +'<td>' +'</td>'
+                                +element.str_out_val.map((e , index) => {
+                                    let usedMaterial;
+                                    let widthUsedMaterial;
+                                    usedMaterial = e.val;
+                                    widthUsedMaterial = e.val / element.str_in_val * 100;
+                                    if(pilkaSrez !== 0 && index !== element.str_out_val.length - 1){
+                                        return (
+                                            '<td>'
+                                                +'<div>' 
+                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
+                                                +'</div>'
+                                            +'</td>'
+                                            +'<td>' + '</td>'
+                                        )
+                                    }
+                                    else if(((element.str_in_val - usedMaterial * element.str_out_val.length - pilkaSrez * (element.str_out_val.length - 1)) !== 0 || (index !== element.str_out_val.length - 1)) && pilkaSrez !== 0){
+                                        return (
+                                            '<td>'
+                                                +'<div>' 
+                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
+                                                +'</div>'
+                                            +'</td>'
+                                            +'<td>' + '</td>'
+                                        )
+                                    }
+                                    else{
+                                        return (
+                                            '<td>'
+                                                +'<div>' 
+                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
+                                                +'</div>'
+                                            +'</td>'
+                                        )
+                                    }
+                                }).join('')
+                                +'<td class="marker-disk-waste">' +'</td>'
+                            +'</tr>'
+                        +'</tbody>'
+                    +'</table>').appendTo(".smartcut_res")
+                    )
+                }
+            })
+    
+            +$('<br/>').appendTo(".smartcut_res");
+            +$('<br/>').appendTo(".smartcut_res");
+            +$('<div class="string">' + 'Польза: ' + (usedInputL.reduce((a , b) => a += b.val * b.counter , 0) / RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) * 100).toFixed(5) + '%' + '</div>').appendTo(".smartcut_res");
+            +$('<div class="string">' + 'Отход: ' 
+                +((RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) - usedInputL.reduce((a , b) => a += b.val * b.counter , 0)) / RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) * 100).toFixed(5) + '% ' 
+                +'<br/>'
+                +'(' + 'Используемый: ' + UsedOtkhod + $('input[name="ed"]').val() + ')' 
+                +'<br/>'
+                +'(' + 'Неиспользуемый: ' + (RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) - usedInputL.reduce((a , b) => a += b.val * b.counter, 0) - UsedOtkhod) + $('input[name="ed"]').val() + ')'
+                +'<br/>'
+                +'(' + 'Всего: ' + (RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) - usedInputL.reduce((a , b) => a += b.val * b.counter, 0)) + $('input[name="ed"]').val() + ')'
+            +'</div>').appendTo(".smartcut_res");
 
-        //СОЗДАНИЕ TABLE MAP
-        RenderArray.map(element =>{
-            let srezSize = element.str_in_val;
-            let srezCounter = element.str_in_counter;
-            let sumUsedMaterial = element.str_out_val.reduce((a , b) => a + b , 0);
-            let sumWidthUsedMaterial = element.str_out_val.reduce((a , b) => a + b , 0) / element.str_in_val * 100;
-            let remains = element.str_in_val - sumUsedMaterial;
-            let widthRemains = 100 - sumWidthUsedMaterial;
-            if(remains !== 0){
-                return (
-                $('<table class="map_item">'
-                    +'<tbody>'
-                        +'<tr>'
-                            +'<td>' 
-                                + srezSize + ' x ' + srezCounter
-                            +'</td>'
-                            +element.str_out_val.map(e => {
-                                let usedMaterial;
-                                let widthUsedMaterial;
-                                usedMaterial = e;
-                                widthUsedMaterial = e / element.str_in_val * 100;
-                                return '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
-                            }).join('')
-                            +'<td class="waste_item" style=\"width:' + widthRemains + '%' +'\"' + '>' + remains + $('input[name="ed"]').val() +'</td>'
-                        +'</tr>'
-                        +'<tr class="sizemarkers">'
-                            +'<td>' +'</td>'
-                            +element.str_out_val.map(e => {
-                                let usedMaterial;
-                                let widthUsedMaterial;
-                                usedMaterial = e;
-                                widthUsedMaterial = e / element.str_in_val * 100;
-                                return (
-                                    '<td>'
-                                        +'<div>' 
-                                            +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
-                                        +'</div>'
-                                    +'</td>')
-                            }).join('')
-                            +'<td class="marker-disk-waste">' +'</td>'
-                        +'</tr>'
-                    +'</tbody>'
-                +'</table>').appendTo(".smartcut_res")
-                )
-            }else{
-                return (
-                $('<table class="map_item">'
-                    +'<tbody>'
-                        +'<tr>'
-                            +'<td>' 
-                                + srezSize + ' x ' + srezCounter
-                            +'</td>'
-                            +element.str_out_val.map(e => {
-                                let usedMaterial;
-                                let widthUsedMaterial;
-                                usedMaterial = e;
-                                widthUsedMaterial = e / element.str_in_val * 100;
-                                return '<td style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
-                            }).join('')
-                        +'</tr>'
-                        +'<tr class="sizemarkers">' 
-                            +'<td>' +'</td>'
-                            +element.str_out_val.map(e => {
-                                let usedMaterial;
-                                let widthUsedMaterial;
-                                usedMaterial = e;
-                                widthUsedMaterial = e / element.str_in_val * 100;
-                                return (
-                                    '<td>'
-                                        +'<div>' 
-                                            +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
-                                        +'</div>'
-                                    +'</td>')
-                            }).join('')
-                            +'<td class="marker-disk-waste">' +'</td>'
-                        +'</tr>'
-                    +'</tbody>'
-                +'</table>').appendTo(".smartcut_res")
-                )
-            }
-        })
-
-        +$('<br/>').appendTo(".smartcut_res");
-        +$('<br/>').appendTo(".smartcut_res");
-        +$('<div class="string">' + 'Польза: ' + (usedInputL.reduce((a , b) => a += b.val * b.counter , 0) / RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) * 100).toFixed(5) + '%' + '</div>').appendTo(".smartcut_res");
-        +$('<div class="string">' + 'Отход: ' + ((RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) - usedInputL.reduce((a , b) => a += b.val * b.counter , 0)) / RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) * 100).toFixed(5) + '% ' + '(' + (RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) - usedInputL.reduce((a , b) => a += b.val * b.counter , 0)) + $('input[name="ed"]').val() + ')' + '</div>').appendTo(".smartcut_res");
-        console.log(RenderArray)
+            +$('<br/>').appendTo(".smartcut_res");
+            $('<div class="" style="margin:0 0 20px; padding:0; display:block;">'
+                +'<b>Использовано: </b>'
+                +usedInput_in.map(element => {
+                    if(element.counter != 0){
+                        return '<br/>' + '<string>' + element.val + $('input[name="ed"]').val() + ' x ' + element.counter + ' шт.' + '</string>'
+                    }else{
+                        return;
+                    }
+                }).join('')
+                +'<br/>'
+                +'<string>' + ' = ' + RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) + '</string>'
+            +'</div>').appendTo(".smartcut_res")
+        }
   
     }
-    // function smartcutRes(){
-    //   $(".smartcut_res").append('<label class="cutting_name" spellcheck="false" style="min-height: 320px;" contenteditable="true">'+'</label>')
-    //     $(".cutting_name").append('<textarea id="cut-name" placeholder="Название и описание" value style="">'+'</textarea>')
-    //   $(".smartcut_res").append
-    //     ('<div class="" style="margin:0 0 20px; padding:0; display:block;">'
-    //         + '<b>Использовано: </b>' 
-    //         + '<br/>'
-    //     +'</div>')
-    //   $(".smartcut_res").append('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>');
-  
-    // }
-    // function createMapItem(indexCreateMapItem , srezSize , srezCounter){
-    //   $(".smartcut_res").append('<tabel class=\"map_item' + indexCreateMapItem + '\"' + 'style="width:100%; border-collapse:collapse; display:block; margin-bottom:20px;"></tabel>'); 
-    //       $(".map_item" + indexCreateMapItem).append('<tbody class=\"mapItemTBody' + indexCreateMapItem + '\"' + 'style="width:100%;display:block;"></tbody>');
-    //           $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"mainItem' + indexCreateMapItem + '\"' + 'style=""></tr>');
-    //               $(".mainItem" + indexCreateMapItem).append('<td class=\"itemRaskhod' + indexCreateMapItem + '\"' + 'style="padding-right: 7px; white-space: nowrap;">' + srezSize + ' * ' + srezCounter + '</td>');
-    //           $(".mapItemTBody" + indexCreateMapItem).append('<tr class=\"sizemarkers' + indexCreateMapItem + '\"' + 'style=""></tr>');
-    //               $(".sizemarkers" + indexCreateMapItem).append('<td class="" style=""></td>');
-  
-  
-  
-    // }
-    // function createInputSrez(indexCreateMapItem , usedMaterial , widthUsedMaterial){
-    //     $(".mainItem" + indexCreateMapItem).append('<td class=\"srez' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #feffd0; text-align: center; width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>');
-    //     $(".sizemarkers" + indexCreateMapItem).append
-    //     ('<td class="" style="background-color: #fff; border: none; border-right: 1px dashed; padding: 0 1px 4px 0; text-align: right;">'
-    //         + ('<div style="position: relative; padding: 8px 0 0;">'
-    //             + ('<span style="border-bottom: 0.5px solid #333; position: relative; margin: 0 2px; display: inline-block;">' + usedMaterial + $('input[name="ed"]').val() + '</span>')
-    //         + '</div>')
-    //     + '</td>');
-    // }
-    // function createRemains(indexCreateMapItem , remains , widthRemains){
-    //     $(".mainItem" + indexCreateMapItem).append('<td class=\"waste_item' + indexCreateMapItem + '\"' + 'style=\"border: 1px solid; padding: 4px 1px; background-color: #eee; text-align: center; width:' + widthRemains + '%' +'\"' + '>' + remains + $('input[name="ed"]').val() +'</td>');
-
-    // }
-
-
-  // c()
-  //   function c() {
-  //     let e = new Date,
-  //         t = document.getElementById("smartcut_res");
-  //     let n = $("#pdf-format").val(),
-  //         r = $("#pdf-orientation").val();
-  //     console.log(n + " " + r);
-  //     let o = $.cookie("smct_cut_name"),
-  //         i = void 0 !== o && "" != o ? o : "smartcut.pro";
-  //     let a = window.location.search;
-  //     null != new URLSearchParams(a).get("style") && (i = "cutting_");
-  //     let s = {
-  //         margin: [.4, .3, .4, .3],
-  //         filename: i + " " + e.toLocaleDateString().replace(/\./g, "-") + "_" + e.toLocaleTimeString().replace(/:/g, "") + ".pdf",
-  //         html2canvas: {
-  //             scale: 2
-  //         },
-  //         jsPDF: {
-  //             unit: "in",
-  //             format: n,
-  //             orientation: r
-  //         },
-  //         pagebreak: {
-  //             mode: ["css", "legacy"]
-  //         }
-  //     };
-  //     return html2pdf().set(s).from(t).save().then(e => {
-  //         $(".pdf-made").prop("disabled", !1), console.log("pdf export success")
-  //     }).catch(e => {
-  //         $(".pdf-made").prop("disabled", !1), console.log("pdf export error")
-  //     }), setTimeout((function() {
-  //         $(".cutting_name").removeClass("hidden"), "" == $(".cutting_name textarea").val() && $(".cutting_name").show(), $(".list-items-open").show()
-  //     }), 5e3), $.magnificPopup.close(), !1
-  // }
-    
-  })
+})

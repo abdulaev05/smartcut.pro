@@ -56,6 +56,15 @@
 			</ul>
 		</nav>
 
+		<div class="modal">
+			<div class="modal__content">
+				<h1>Остатки будут удалены и заного<br/>перезаписаны</h1>
+				<form class="buttons">
+					<button class="button_yes">Да</button>
+					<button class="button_no">Нет</button>
+				</form>
+			</div>
+		</div>
 		<div class="content-640 user-email"></div>
 
 		<form id="smartcut" class="smartcut">
@@ -133,6 +142,10 @@
 					<label for="t_disk">Толщина лезвия:</label>
 					<input type="number" step="0.001" id="t_disk" name="t_disk" value="0" min="0" max="100000" maxlength="6">
 					<input type="hidden" name="lang_code" value="ru">
+				</div>
+				<div class="usefulRemains">
+					<label for="usefulRemainsInput">Полезный остаток:</label>
+					<input type="number" class="usefulRemainsInput" name="usefulRemainsInput" maxlength="50" value="0">
 				</div>
 				<div class="sort-by">
 					<label class="form-label">Сортировать по:</label>
