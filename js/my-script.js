@@ -82,12 +82,22 @@ jQuery(document).ready(function(){
         })
         //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
         if(delArray.length){
-            if(!!RenderArray.find(e => e.str_in_val == element && JSON.stringify(e.str_out_val) == JSON.stringify(delArray))){
-                RenderArray.find(e => e.str_in_val == element && JSON.stringify(e.str_out_val) == JSON.stringify(delArray)).str_in_counter++
+            let strOutCounter = [];
+            delArray.forEach(elem =>{
+                if(!!strOutCounter.find(e => e.val == elem.val && e.materialName == elem.materialName) && strOutCounter.length){
+                    strOutCounter.find(e => e.val == elem.val && e.materialName == elem.materialName).counter++
+                }else{
+                    strOutCounter.push({
+                        val: elem.val, counter: 1, materialName: elem.materialName,
+                    })
+                }
+            })
+            if(!!RenderArray.find(e => e.str_in_val == element && JSON.stringify(e.str_out) == JSON.stringify(strOutCounter))){
+                RenderArray.find(e => e.str_in_val == element && JSON.stringify(e.str_out) == JSON.stringify(strOutCounter)).str_in_counter++
             }else{
                 RenderArray.push({
                 str_in_val: element , str_in_counter: 1,
-                str_out_val: delArray,
+                str_out: strOutCounter,
                 })
             }
         }
@@ -123,7 +133,7 @@ jQuery(document).ready(function(){
     //СОЗДАНИЕ МАССИВА С ОСТАТКАМИ
     let usefulRemainsArr = JSON.parse(JSON.stringify(inputL_inClone));
     RenderArray.forEach(element =>{
-        let sumUsedMaterial = element.str_out_val.reduce((a , b) => a + b.val , 0) + pilkaSrez * (element.str_out_val.length);
+        let sumUsedMaterial = element.str_out.reduce((a , b) => a + b.val * b.counter , 0) + pilkaSrez * element.str_out.reduce((a , b) => a + b.counter , 0);
         let remains = element.str_in_val - sumUsedMaterial >= 0 ? element.str_in_val - sumUsedMaterial : 0;
         if(remains !== 0 && remains >= +$('input[name="usefulRemainsInput"]').val()){
             for(let i = 0; i < element.str_in_counter; i++){
@@ -139,7 +149,6 @@ jQuery(document).ready(function(){
     //СОЗДАНИЕ usedInput_in 
     let usedInput_in = []
     RenderArray.forEach(element =>{
-        console.log(element.str_in_val)
         if(!!usedInput_in.find(e => e.val == element.str_in_val)){
             usedInput_in.find(e => e.val == element.str_in_val).counter += element.str_in_counter
         }else{
@@ -205,12 +214,12 @@ jQuery(document).ready(function(){
     //     inputL_inAllArr.splice(inputL_inAllArrDelIndex , 1)
     //     //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
     //     if(delArray.length){
-    //         if(!!RenderArray.find(e => e.str_in_val == element) && !!RenderArray.find(e => e.str_out_val.toString() == delArray.toString())){
-    //             RenderArray.find(e => e.str_out_val.toString() == delArray.toString()).str_in_counter++
+    //         if(!!RenderArray.find(e => e.str_in_val == element) && !!RenderArray.find(e => e.str_out.toString() == delArray.toString())){
+    //             RenderArray.find(e => e.str_out.toString() == delArray.toString()).str_in_counter++
     //         }else{
     //             RenderArray.push({
     //             str_in_val: element , str_in_counter: 1,
-    //             str_out_val: delArray,
+    //             str_out: delArray,
     //             })
     //         }
     //     }
@@ -222,7 +231,7 @@ jQuery(document).ready(function(){
     //     createMapItem(index , srezSize , srezCounter)
     //     let sumUsedMaterial = 0;
     //     let sumWidthUsedMaterial = 0;
-    //     element.str_out_val.forEach(e => {
+    //     element.str_out.forEach(e => {
     //         let usedMaterial;
     //         let widthUsedMaterial;
     //         usedMaterial = e;
@@ -480,7 +489,6 @@ jQuery(document).ready(function(){
           expires: 365
       })
     }
-    console.log($('.selectMaterial option:selected').html())
     function cookieLoad(){
         if (null != $.cookie("smct_l") && "" != $.cookie("smct_l") && $('input[name="l_zag"]').val($.cookie("smct_l")), null != $.cookie("smct_tdisk") && "" != $.cookie("smct_tdisk") && $('input[name="t_disk"]').val($.cookie("smct_tdisk")), null != $.cookie("smct_usefulRemainsInput") && "" != $.cookie("smct_usefulRemainsInput") && $('input[name="usefulRemainsInput"]').val($.cookie('smct_usefulRemainsInput')), null != $.cookie("smct_l_zag_id") && "" != $.cookie("smct_l_zag_id") && $('input[name="l_zag_id"]').val($.cookie("smct_l_zag_id")), null != $.cookie("smct_ed") && "" != $.cookie("smct_ed") && $('input[name="ed"]').val($.cookie("smct_ed")), null != $.cookie("smct_out") && $.cookie("smct_out").length > 3) {
             nc = $.cookie("smct_out").split(",");
@@ -524,10 +532,11 @@ jQuery(document).ready(function(){
             RenderArray.map(element =>{
                 let srezSize = element.str_in_val;
                 let srezCounter = element.str_in_counter;
-                let sumUsedMaterial = element.str_out_val.reduce((a , b) => a + b.val , 0) + pilkaSrez * (element.str_out_val.length);
-                let sumWidthUsedMaterial = (element.str_out_val.reduce((a , b) => a + b.val , 0) + pilkaSrez * (element.str_out_val.length)) / element.str_in_val * 100;
+                let sumUsedMaterial = element.str_out.reduce((a , b) => a + b.val * b.counter, 0) + pilkaSrez * element.str_out.reduce((a , b) => a + b.counter, 0);
+                let sumWidthUsedMaterial = (element.str_out.reduce((a , b) => a + b.val * b.counter , 0) + pilkaSrez * (element.str_out.length)) / element.str_in_val * 100;
                 let remains = element.str_in_val - sumUsedMaterial >= 0 ? element.str_in_val - sumUsedMaterial : 0;
                 let widthRemains = 100 - sumWidthUsedMaterial;
+                let usedUnderMaterial = 0;
                 UsedOtkhod += remains;
                 if(remains !== 0){
                     return (
@@ -537,31 +546,58 @@ jQuery(document).ready(function(){
                                 +'<td>' 
                                     + srezSize + ' x ' + srezCounter
                                 +'</td>'
-                                +element.str_out_val.map((e , index) => {
+                                +element.str_out.map((e , index) => {
                                     let usedMaterial = e.val;
+                                    let userCounter = e.counter;
                                     let usedMaterialName = e.materialName;
-                                    let widthUsedMaterial = e.val / element.str_in_val * 100;
-                                    if(usedMaterialName !== ''){
-                                        if(pilkaSrez !== 0){
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
-                                                +'<td id="pilkaSrez">' + '</td>'
-                                            )
+                                    let widthUsedMaterial = e.val *  e.counter / element.str_in_val * 100;
+                                    if(userCounter !== 1){
+                                        if(usedMaterialName !== ''){
+                                            if(pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                )
+                                            }
                                         }else{
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
-                                            )
+                                            if(pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                )
+                                            }
                                         }
                                     }else{
-                                        if(pilkaSrez !== 0){
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
-                                                +'<td id="pilkaSrez">' + '</td>'
-                                            )
+                                        if(usedMaterialName !== ''){
+                                            if(pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                )
+                                            }
                                         }else{
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
-                                            )
+                                            if(pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                )
+                                            }
                                         }
                                     }
                                 }).join('')
@@ -569,28 +605,34 @@ jQuery(document).ready(function(){
                             +'</tr>'
                             +'<tr class="sizemarkers">'
                                 +'<td>' + '</td>'
-                                +element.str_out_val.map((e , index) => {
-                                    let usedMaterial;
-                                    let widthUsedMaterial;
-                                    usedMaterial = e.val;
-                                    widthUsedMaterial = e.val / element.str_in_val * 100;
+                                +element.str_out.map((e , index) => {
+                                    let userCounter = e.counter;
+                                    let widthUsedMaterial = e.val / element.str_in_val * 100;
                                     if(pilkaSrez !== 0){
-                                        return (
-                                            '<td>'
-                                                +'<div>' 
-                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
-                                                +'</div>'
-                                            +'</td>'
-                                            +'<td>' + '</td>'
-                                        )
+                                        let arr = [];
+                                        for(let i = 1; i <= userCounter; i++){
+                                            usedUnderMaterial += e.val;
+                                            arr.push(
+                                                '<td>'
+                                                    +'<div>' 
+                                                        +'<span>' + usedUnderMaterial + $('input[name="ed"]').val() + '</span>'
+                                                    +'</div>'
+                                                +'</td>')
+                                        }
+                                        arr.push('<td>' + '</td>')
+                                        return (arr.join(''))
                                     }else{
-                                        return (
-                                            '<td>'
-                                                +'<div>' 
-                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
-                                                +'</div>'
-                                            +'</td>'
-                                        )
+                                        let arr = [];
+                                        for(let i = 1; i <= userCounter; i++){
+                                            usedUnderMaterial += e.val;
+                                            arr.push(
+                                                '<td>'
+                                                    +'<div>' 
+                                                        +'<span>' + usedUnderMaterial + $('input[name="ed"]').val() + '</span>'
+                                                    +'</div>'
+                                                +'</td>')
+                                        }
+                                        return (arr.join(''))
                                     }
                                 }).join('')
                                 +'<td class="marker-disk-waste">' +'</td>'
@@ -606,72 +648,111 @@ jQuery(document).ready(function(){
                                 +'<td>' 
                                     + srezSize + ' x ' + srezCounter
                                 +'</td>'
-                                +element.str_out_val.map((e , index) => {
+                                +element.str_out.map((e , index) => {
                                     let usedMaterial = e.val;
+                                    let userCounter = e.counter;
                                     let usedMaterialName = e.materialName;
-                                    let widthUsedMaterial = e.val / element.str_in_val * 100;
-                                    if(usedMaterialName !== ''){
-                                        if(((element.str_in_val - usedMaterial * element.str_out_val.length - pilkaSrez * (element.str_out_val.length - 1)) !== 0 || (index !== element.str_out_val.length - 1)) && pilkaSrez !== 0){
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
-                                                +'<td id="pilkaSrez">' + '</td>'
-                                            )
-                                        }
-                                        else{
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
-                                            )
+                                    let widthUsedMaterial = e.val * e.counter / element.str_in_val * 100;
+                                    if(userCounter !== 1){
+                                        if(usedMaterialName !== ''){
+                                            if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }
+                                            else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                )
+                                            }
+                                        }else{
+                                            if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }
+                                            else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                )
+                                            }
                                         }
                                     }else{
-                                        if(((element.str_in_val - usedMaterial * element.str_out_val.length - pilkaSrez * (element.str_out_val.length - 1)) !== 0 || (index !== element.str_out_val.length - 1)) && pilkaSrez !== 0){
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
-                                                +'<td id="pilkaSrez">' + '</td>'
-                                            )
-                                        }
-                                        else{
-                                            return (
-                                                '<td style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
-                                            )
+                                        if(usedMaterialName !== ''){
+                                            if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }
+                                            else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                )
+                                            }
+                                        }else{
+                                            if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                    +'<td id="pilkaSrez">' + '</td>'
+                                                )
+                                            }
+                                            else{
+                                                return (
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                )
+                                            }
                                         }
                                     }
                                 }).join('')
                             +'</tr>'
                             +'<tr class="sizemarkers">' 
                                 +'<td>' +'</td>'
-                                +element.str_out_val.map((e , index) => {
-                                    let usedMaterial;
-                                    let widthUsedMaterial;
-                                    usedMaterial = e.val;
-                                    widthUsedMaterial = e.val / element.str_in_val * 100;
-                                    if(pilkaSrez !== 0 && index !== element.str_out_val.length - 1){
-                                        return (
-                                            '<td>'
-                                                +'<div>' 
-                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
-                                                +'</div>'
-                                            +'</td>'
-                                            +'<td>' + '</td>'
-                                        )
+                                +element.str_out.map((e , index) => {
+                                    let userCounter = e.counter;
+                                    let widthUsedMaterial = e.val * e.counter / element.str_in_val * 100;
+                                    if(pilkaSrez !== 0 && index !== element.str_out.length - 1){
+                                        let arr = [];
+                                        for(let i = 1; i <= userCounter; i++){
+                                            usedUnderMaterial += e.val;
+                                            arr.push(
+                                                '<td>'
+                                                    +'<div>' 
+                                                        +'<span>' + usedUnderMaterial + $('input[name="ed"]').val() + '</span>'
+                                                    +'</div>'
+                                                +'</td>')
+                                        }
+                                        arr.push('<td>' + '</td>')
+                                        return (arr.join(''))
                                     }
-                                    else if(((element.str_in_val - usedMaterial * element.str_out_val.length - pilkaSrez * (element.str_out_val.length - 1)) !== 0 || (index !== element.str_out_val.length - 1)) && pilkaSrez !== 0){
-                                        return (
-                                            '<td>'
-                                                +'<div>' 
-                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
-                                                +'</div>'
-                                            +'</td>'
-                                            +'<td>' + '</td>'
-                                        )
+                                    else if(((element.str_in_val - e.val * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
+                                        let arr = [];
+                                        for(let i = 1; i <= userCounter; i++){
+                                            usedUnderMaterial += e.val;
+                                            arr.push(
+                                                '<td>'
+                                                    +'<div>' 
+                                                        +'<span>' + usedUnderMaterial + $('input[name="ed"]').val() + '</span>'
+                                                    +'</div>'
+                                                +'</td>')
+                                        }
+                                        arr.push('<td>' + '</td>')
+                                        return (arr.join(''))
                                     }
                                     else{
-                                        return (
-                                            '<td>'
-                                                +'<div>' 
-                                                    +'<span>' + usedMaterial + $('input[name="ed"]').val() + '</span>'
-                                                +'</div>'
-                                            +'</td>'
-                                        )
+                                        let arr = [];
+                                        for(let i = 1; i <= userCounter; i++){
+                                            usedUnderMaterial += e.val;
+                                            arr.push(
+                                                '<td>'
+                                                    +'<div>' 
+                                                        +'<span>' + usedUnderMaterial + $('input[name="ed"]').val() + '</span>'
+                                                    +'</div>'
+                                                +'</td>')
+                                        }
+                                        return (arr.join(''))
                                     }
                                 }).join('')
                                 +'<td class="marker-disk-waste">' +'</td>'
@@ -696,7 +777,7 @@ jQuery(document).ready(function(){
             +'</div>').appendTo(".smartcut_res");
 
             +$('<br/>').appendTo(".smartcut_res");
-            $('<div class="" style="margin:0 0 20px; padding:0; display:block;">'
+            $('<div class="">'
                 +'<b>Использовано: </b>'
                 +usedInput_in.map(element => {
                     if(element.counter != 0){
@@ -708,6 +789,16 @@ jQuery(document).ready(function(){
                 +'<br/>'
                 +'<string>' + ' = ' + usedInput_in.reduce((a , b) => a += b.val * b.counter , 0) + $('input[name="ed"]').val() + '</string>'
             +'</div>').appendTo(".smartcut_res")
+
+            +$('<br/>').appendTo(".smartcut_res");
+            $('<div class="">'
+                +'<b>Отрезки: </b>'
+                +usedInputL.map(element => {
+                    return '<br/>' + '<string>' + element.val + $('input[name="ed"]').val() + ' - ' + element.counter + ' шт. ' + element.materialName + '</string>'
+                }).join('')
+            +'</div>').appendTo(".smartcut_res")
+            console.log(usedInputL)
+
         }
   
     }
