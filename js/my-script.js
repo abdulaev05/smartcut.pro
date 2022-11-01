@@ -1,31 +1,5 @@
-
 jQuery(document).ready(function(){
-    if (null != $.cookie("smct_l") && "" != $.cookie("smct_l") && $('input[name="l_zag"]').val($.cookie("smct_l")), null != $.cookie("smct_tdisk") && "" != $.cookie("smct_tdisk") && $('input[name="t_disk"]').val($.cookie("smct_tdisk")), null != $.cookie("smct_usefulRemainsInput") && "" != $.cookie("smct_usefulRemainsInput") && $('input[name="usefulRemainsInput"]').val($.cookie('smct_usefulRemainsInput')), null != $.cookie("smct_l_zag_id") && "" != $.cookie("smct_l_zag_id") && $('input[name="l_zag_id"]').val($.cookie("smct_l_zag_id")), null != $.cookie("smct_ed") && "" != $.cookie("smct_ed") && $('input[name="ed"]').val($.cookie("smct_ed")), null != $.cookie("smct_out") && $.cookie("smct_out").length > 3) {
-        nc = $.cookie("smct_out").split(",");
-        let t = '<tr class="str_out">' + $(".str_out:last").html() + "</tr>";
-        nc.length > 0 && $(".str_out").remove();
-        for (let n = 0; n < nc.length; ++n) {
-            ar = nc[n].split("-");
-            let e = ar[0],
-                r = ar[1],
-                o = ar.slice(2).join("-");
-            ar[0] > 0 && ar[1] && ($(".out > tbody > tr:last").before(t), $(".str_out:last input[name='l[]']").val(e), $(".str_out:last input[name='c[]']").val(r), $(".str_out:last input[name='id[]']").val(decodeURIComponent(o)))
-        }
-        $(".out > tbody > tr:last").before(t), r(), s()
-    }
-    if (null != $.cookie("smct_in") && $.cookie("smct_in").length > 3) {
-        nci = $.cookie("smct_in").split(",");
-        var o = '<tr class="str_in">' + $(".str_in:last").html() + "</tr>";
-        nci.length > 0 && $(".str_in").remove();
-        for (let n = 0; n < nci.length; ++n) {
-            ari = nci[n].split("-");
-            let e = ari[0],
-                t = ari[1],
-                r = ari.slice(2).join("-");
-            ari[0] > 0 && ari[1] && ($(".in > tbody > tr:last").before(o), $(".str_in:last").find('input[name="l_in[]"]').val(e), $(".str_in:last").find('input[name="c_in[]"]').val(t), $(".str_in:last").find('input[name="id_in[]"]').val(decodeURIComponent(r)))
-        }
-        $(".in > tbody > tr:last").before(o), r(), a()
-    }
+    cookieLoad()
 
     $('.start').on('click' , (() =>{
         i()
@@ -268,11 +242,6 @@ jQuery(document).ready(function(){
 
     ///////////////////////////////////////////////////////////////////////////
 
-  
-    $(".res_buttons").css({
-      display: "flex"
-    })
-
     $(".add").click((function() {
       return t(), $('input[name="l[]"]').last().focus(), !1
     }))
@@ -361,15 +330,48 @@ jQuery(document).ready(function(){
             $(".modal")[0].style.display = 'none'
         }
     }
-  
-  
-
     //АВТОУВЕЛИЧЕНИЕ TEXTAREA ПРИ ПЕРЕПОЛНЕНИИ
     $("#cut-name").on('keyup', function(){
         if(this.scrollTop > 0){
           this.style.height = this.scrollHeight + "px";
         }
     });
+    //КЛИК НА КНОПКУ TOP-DROP
+    $(".top-drop").on("click", (function() {
+        $(this).toggleClass("active")
+    }))
+    $(".add-lang").click((function() {
+        $(".slide-form").slideDown("fast"), $(".top-drop li").find("a, span").addClass("active")
+    }))
+    $(".close-forms").click((function() {
+        $(".slide-form").slideUp("fast"), $(".top-drop li").find("a, span").removeClass("active")
+    }))
+    let selectMaterial = []
+    $(".support-submit").on("click" , (function(){
+        if($(".materialInput").val() !== '' && $(".materialInput").val() !== null){
+            $("<option>" + $(".materialInput").val() +"</option>").appendTo(".selectMaterial")
+            $('.selectMaterial option:last').prop('selected', true);
+            $(".materialInput").val('')
+        }
+        $('.selectMaterial option:selected').html()
+        if($(".otherInput").val() !== '' && $(".otherInput").val() !== null){
+            $("<option>" + $(".otherInput").val() +"</option>").appendTo(".selectType")
+            $(".selectType option:last").prop('selected' , true)
+            $(".otherInput").val('')
+        }
+        if($(".colorInput").val() !== '' && $(".colorInput").val() !== null){
+            $("<option>" + $(".colorInput").val() +"</option>").appendTo(".selectColor")
+            $(".selectColor option:last").prop('selected' , true);
+            $(".colorInput").val('')
+        }
+        let selectMaterial = ""
+        $('.selectMaterial option').each((index , elem) =>{
+            selectMaterial += elem.value + ","
+        })
+        selectMaterial = selectMaterial.slice(0, -1) 
+        console.log(selectMaterial)
+        return false;
+    }))
     
   
     function l() {
@@ -424,15 +426,19 @@ jQuery(document).ready(function(){
         $(window).scrollTop() + $(window).height() > $("#smartcut_res").offset().top - 30 && $(window).scrollTop() + $(window).height() < $("#smartcut_res").offset().top + $("#smartcut_res").height() ? $(".top").css("left", "calc(50% + " + ($("#smartcut_res").width() / 2 + 32) + "px)") : $(".top").css("left", "")
     }
     function i() {
-        let e, t, n, r, i = "", a = "";
+        let e, t, n, r, i = "", a = "" , selectMaterial = "";
         $(".str_out").each((function() {
             e = $(this).find('input[name="l[]"]').val(), t = $(this).find('input[name="c[]"]').val(), id = encodeURIComponent($(this).find('input[name="id[]"]').val()), e > 0 && t > 0 && (i = i + e + "-" + t + "-" + id + ",")
         })), 
         $(".str_in").each((function() {
             n = $(this).find('input[name="l_in[]"]').val(), r = $(this).find('input[name="c_in[]"]').val(), ii = encodeURIComponent($(this).find('input[name="id_in[]"]').val()), n > 0 && r > 0 && (a = a + n + "-" + r + "-" + ii + ",")
-        })), 
+        })),
+        $('.selectMaterial option').each((index , elem) =>{
+            selectMaterial += elem.value + ","
+        }),
         i = i.slice(0, -1), 
         a = a.slice(0, -1), 
+        selectMaterial = selectMaterial.slice(0, -1),
         $.cookie("smct_out", i, {
             expires: 365
         }), 
@@ -454,6 +460,9 @@ jQuery(document).ready(function(){
         $.cookie("smct_usefulRemainsInput", $('input[name="usefulRemainsInput"]').val(), {
             expires: 365
         });
+        // $.cookie("smct_topBar", , {
+        //     expires: 365
+        // });
     }
     function removeCookieSmct_out(){
       $.cookie("smct_out", '', {
@@ -470,6 +479,35 @@ jQuery(document).ready(function(){
       $.cookie("smct_l_zag_id", '', {
           expires: 365
       })
+    }
+    console.log($('.selectMaterial option:selected').html())
+    function cookieLoad(){
+        if (null != $.cookie("smct_l") && "" != $.cookie("smct_l") && $('input[name="l_zag"]').val($.cookie("smct_l")), null != $.cookie("smct_tdisk") && "" != $.cookie("smct_tdisk") && $('input[name="t_disk"]').val($.cookie("smct_tdisk")), null != $.cookie("smct_usefulRemainsInput") && "" != $.cookie("smct_usefulRemainsInput") && $('input[name="usefulRemainsInput"]').val($.cookie('smct_usefulRemainsInput')), null != $.cookie("smct_l_zag_id") && "" != $.cookie("smct_l_zag_id") && $('input[name="l_zag_id"]').val($.cookie("smct_l_zag_id")), null != $.cookie("smct_ed") && "" != $.cookie("smct_ed") && $('input[name="ed"]').val($.cookie("smct_ed")), null != $.cookie("smct_out") && $.cookie("smct_out").length > 3) {
+            nc = $.cookie("smct_out").split(",");
+            let t = '<tr class="str_out">' + $(".str_out:last").html() + "</tr>";
+            nc.length > 0 && $(".str_out").remove();
+            for (let n = 0; n < nc.length; ++n) {
+                ar = nc[n].split("-");
+                let e = ar[0],
+                    r = ar[1],
+                    o = ar.slice(2).join("-");
+                ar[0] > 0 && ar[1] && ($(".out > tbody > tr:last").before(t), $(".str_out:last input[name='l[]']").val(e), $(".str_out:last input[name='c[]']").val(r), $(".str_out:last input[name='id[]']").val(decodeURIComponent(o)))
+            }
+            $(".out > tbody > tr:last").before(t), r(), s()
+        }
+        if (null != $.cookie("smct_in") && $.cookie("smct_in").length > 3) {
+            nci = $.cookie("smct_in").split(",");
+            var o = '<tr class="str_in">' + $(".str_in:last").html() + "</tr>";
+            nci.length > 0 && $(".str_in").remove();
+            for (let n = 0; n < nci.length; ++n) {
+                ari = nci[n].split("-");
+                let e = ari[0],
+                    t = ari[1],
+                    r = ari.slice(2).join("-");
+                ari[0] > 0 && ari[1] && ($(".in > tbody > tr:last").before(o), $(".str_in:last").find('input[name="l_in[]"]').val(e), $(".str_in:last").find('input[name="c_in[]"]').val(t), $(".str_in:last").find('input[name="id_in[]"]').val(decodeURIComponent(r)))
+            }
+            $(".in > tbody > tr:last").before(o), r(), a()
+        }
     }
 
     function smartcutRes(){
@@ -668,7 +706,7 @@ jQuery(document).ready(function(){
                     }
                 }).join('')
                 +'<br/>'
-                +'<string>' + ' = ' + usedInput_in.reduce((a , b) => a += b.val * b.counter , 0) + '</string>'
+                +'<string>' + ' = ' + usedInput_in.reduce((a , b) => a += b.val * b.counter , 0) + $('input[name="ed"]').val() + '</string>'
             +'</div>').appendTo(".smartcut_res")
         }
   

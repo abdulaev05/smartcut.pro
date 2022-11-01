@@ -36,24 +36,16 @@
 
 	<div class="main">
 		<nav class="top-bar">
-			<ul>
-				<li class="top-drop language"><span><i class="flag-icon flag-icon-ru"></i>Русский<i class="arrow icon-angle-double-down"></i></span></li>
-				<li class="top-drop">
-					<span>Еще<i class="arrow icon-angle-double-down"></i></span>
-					<ul>
-						<li data-open=".signup" class="open-signup logged-hide"><span>Регистрация</span></li>
-						<li data-open=".pro" class="open-pro"><span>Цены / Тарифы</span></li>
-						<li class="to-faq"><span>FAQ</span></li>
-						<li data-open=".support" class="open-support"><span>Поддержка / Контакты</span></li>
-						<li><a target="_blank" href="../lang/terms-ru.html">Пользовательское Соглашение</a></li>
-						<li><a target="_blank" href="../lang/terms-ru.html#requisites">Реквизиты</a></li>
-					</ul>
-				</li>
-				<li data-open=".pro" class="open-pro"><span>PRO</span></li>
-				<li data-open=".login" class="open-login"><span href="#">Вход<i class="icon-login"></i></span>
-				</li>
-				<li class="logout"><span>Выход</span></li>
-			</ul>
+			<select class="selectMaterial">
+				<option>Elex</option>
+			</select>
+			<select class="selectType">
+				<option>Рама</option>
+			</select>
+			<select class="selectColor">
+				<option>Белый</option>
+			</select>
+			<li data-open=".support" class="add-lang"><span class="active">+ Добавить</span></li>
 		</nav>
 
 		<div class="modal">
@@ -66,6 +58,17 @@
 			</div>
 		</div>
 		<div class="content-640 user-email"></div>
+		<div class="user-forms">
+			<form action="" class="support slide-form" style="display: none;">
+				<p class="text-left"></p>
+				<input type="text" class="support-theme materialInput" placeholder="Материал" value="">
+				<input type="text" class="support-theme colorInput" placeholder="Тип Материала" value="">
+				<input type="text" class="support-theme otherInput" placeholder="Цвет" value="">
+				<button class="support-submit button ">Добавить</button>
+			</form>
+
+			<button class="close-forms"><i class="icon-angle-double-down icon-angle-double-down-rotate"></i></button>
+		</div>
 
 		<form id="smartcut" class="smartcut">
 			<table class="in">
