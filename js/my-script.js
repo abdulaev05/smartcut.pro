@@ -533,7 +533,7 @@ jQuery(document).ready(function(){
                 let srezSize = element.str_in_val;
                 let srezCounter = element.str_in_counter;
                 let sumUsedMaterial = element.str_out.reduce((a , b) => a + b.val * b.counter, 0) + pilkaSrez * element.str_out.reduce((a , b) => a + b.counter, 0);
-                let sumWidthUsedMaterial = (element.str_out.reduce((a , b) => a + b.val * b.counter , 0) + pilkaSrez * (element.str_out.length)) / element.str_in_val * 100;
+                let sumWidthUsedMaterial = (element.str_out.reduce((a , b) => a + b.val * b.counter , 0) + pilkaSrez * element.str_out.reduce((a , b) => a + b.counter, 0)) / element.str_in_val * 100;
                 let remains = element.str_in_val - sumUsedMaterial >= 0 ? element.str_in_val - sumUsedMaterial : 0;
                 let widthRemains = 100 - sumWidthUsedMaterial;
                 let usedUnderMaterial = 0;
