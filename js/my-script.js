@@ -555,12 +555,12 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
@@ -579,12 +579,12 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
@@ -657,13 +657,13 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }
                                             else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '(x' + userCounter + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
@@ -683,13 +683,13 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }
                                             else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(' + usedMaterialName + ')' + '</td>'
+                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
