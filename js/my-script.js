@@ -1,10 +1,12 @@
 jQuery(document).ready(function(){
     cookieLoad()
-
+    let selectMaterialSelected = $(".selectMaterial option:selected").html() != undefined ? $(".selectMaterial option:selected").html() : '';
+    let selectTypeSelected = $(".selectType option:selected").html() != undefined ? $(".selectType option:selected").html() : '';
+    let selectColorSelected = $(".selectColor option:selected").html() != undefined ? $(".selectColor option:selected").html() : '';
+    let AllNameOptionSelected = selectMaterialSelected + selectTypeSelected + selectColorSelected;
     $('.start').on('click' , (() =>{
         i()
     }))
-
     ////////РАСЧЕТЫ
     let inputL = [];
     $('.str_out').each(index =>{
@@ -158,98 +160,7 @@ jQuery(document).ready(function(){
         }
     })
     smartcutRes()
-    
-    
-    // let indexCreateMapItem = 0;
-    // let counterFor = 0;
-    // let RenderArray = []
-    // ///ЦИКЛ ДЛЯ СОЗДАНИЯ МАССИВА РЕНДЕРИНГА
-    // do{
-    //     if(Math.max(...inputL_inAllArr) >= Math.min(...inputLAllArr) && inputL_inAllArr.length){
-    //         inputL_in.forEach((element , index) => {
-    //             let inputLClone = [...inputLAllArr.filter(e => e <= element.val).sort((a , b) => a + b , 0)];
-    //             for(let i = 0; i < element.counter; i++){
-    //                 minSrez(element.val , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
-    //             }
-    //         })
-    //     }
-    //     else if($('input[name="l_zag"]').val() >= Math.min(...inputLAllArr)){
-    //         let element = +$('input[name="l_zag"]').val();
-    //         let inputLClone = [...inputLAllArr.filter(e => e <= $('input[name="l_zag"]').val()).sort((a , b) => a + b , 0)];
-    //         minSrez(element , inputLClone , inputLAllArr , inputL_inAllArr,  RenderArray);
-    //     }else{
-    //         break;
-    //     }
-    // }while(inputLAllArr.length)
-
-    
-    // function minSrez(element , Array , inputLAllArr , inputL_inAllArr, RenderArray){
-    //     let limit = element;
-    //     let delNumber = 0;
-    //     let delArray = [];
-    //     //РАСЧЕТ ДЛЯ ОПРЕДЕЛЕНИЯ МИНИМАЛЬНОГО СРЕЗА
-    //     for(let j = 0; j < Array.length; j++){
-    //       let value = Array[j];
-    //       let valueArr = [Array[j]]
-    //       for(let k = Array.length - 1; k >= 0; k--){
-    //         if(j == k)continue;
-    //         if(value + Array[k] > value && value + Array[k] <= limit){
-    //           value = value + Array[k];
-    //           valueArr.push(Array[k])
-    //         }
-    //       }
-    //       if(value > delNumber){
-    //         delNumber = value;
-    //         delArray = [...valueArr];
-    //       }
-    //     }
-    //     //УДАЛЕНИЕ ИСПОЛЬЗОВАННЫХ ЭЛЕМЕНТОВ ИЗ РАСЧЕТОВ
-    //     for(let item of delArray){
-    //         let indexDel = Array.findIndex(e => e == item);
-    //         let indexDel_inputLAllArr = inputLAllArr.findIndex(e => e == item);
-    //         Array.splice(indexDel , 1)
-    //         inputLAllArr.splice(indexDel_inputLAllArr , 1)
-    //     }
-    //     let inputL_inAllArrDelIndex = inputL_inAllArr.findIndex(e => e == element);
-    //     inputL_inAllArr.splice(inputL_inAllArrDelIndex , 1)
-    //     //СОЗДАЛ МАССИВ ДЛЯ РЕНДЕРИНГА
-    //     if(delArray.length){
-    //         if(!!RenderArray.find(e => e.str_in_val == element) && !!RenderArray.find(e => e.str_out.toString() == delArray.toString())){
-    //             RenderArray.find(e => e.str_out.toString() == delArray.toString()).str_in_counter++
-    //         }else{
-    //             RenderArray.push({
-    //             str_in_val: element , str_in_counter: 1,
-    //             str_out: delArray,
-    //             })
-    //         }
-    //     }
-    // }
-    // //РЕНДЕРИНГ
-    // RenderArray.forEach((element , index) => {
-    //     let srezSize = element.str_in_val;
-    //     let srezCounter = element.str_in_counter;
-    //     createMapItem(index , srezSize , srezCounter)
-    //     let sumUsedMaterial = 0;
-    //     let sumWidthUsedMaterial = 0;
-    //     element.str_out.forEach(e => {
-    //         let usedMaterial;
-    //         let widthUsedMaterial;
-    //         usedMaterial = e;
-    //         widthUsedMaterial = e / element.str_in_val * 100;
-    //         createInputSrez(index , usedMaterial , widthUsedMaterial)
-
-    //         sumUsedMaterial += e;
-    //         sumWidthUsedMaterial += e / element.str_in_val * 100;
-    //     })
-
-    //     let remains = element.str_in_val - sumUsedMaterial;
-    //     let widthRemains = 100 - sumWidthUsedMaterial;
-    //     if(remains !== 0){
-    //         createRemains(index , remains , widthRemains)
-    //     }
-    // })
-
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
 
     $(".add").click((function() {
       return t(), $('input[name="l[]"]').last().focus(), !1
@@ -306,13 +217,23 @@ jQuery(document).ready(function(){
     $(".show_sizemarker").click((function() {
         $(".sizemarkers").toggle(), y(), v()
     }))
+    //КНОПКА ИЗМЕНЕНИЯ ЦВЕТА
+    $(".inputColor").on("change" , () =>{
+        let colorVal = $(".inputColor").val();
+        $.cookie("smct_colorVal" + AllNameOptionSelected, colorVal, {
+            expires: 365
+        });
+        location.reload()
+    })
     //МОДАЛЬНОЕ ОКНО
     $(".show_waste").on('click' , function(e){
         $(".modal")[0].style.display = 'flex'
+        $(".modal_content_yesOrNot")[0].style.display = 'flex'
     })
     $(".button_no").on('click' , function(e){
         e.preventDefault()
         $(".modal")[0].style.display = 'none'
+        $(".modal_content_yesOrNot")[0].style.display = 'none'
     })
     $(".button_yes").on('click' , function(e){
         $(".str_in").each((function() {
@@ -333,10 +254,16 @@ jQuery(document).ready(function(){
         }
         i()
         $(".modal")[0].style.display = 'none'
+        $(".modal_content_yesOrNot")[0].style.display = 'none'
     })
     window.onclick = function(event){
         if(event.target == $(".modal")[0]){
             $(".modal")[0].style.display = 'none'
+            $(".modal_content_yesOrNot")[0].style.display = 'none'
+            $(".modal_content_chooseDelCookie")[0].style.display = 'none'
+            $("#materialCheckbox")[0].checked = false;
+            $("#typeCheckbox")[0].checked = false;
+            $("#colorCheckbox")[0].checked = false;
         }
     }
     //АВТОУВЕЛИЧЕНИЕ TEXTAREA ПРИ ПЕРЕПОЛНЕНИИ
@@ -344,45 +271,158 @@ jQuery(document).ready(function(){
         if(this.scrollTop > 0){
           this.style.height = this.scrollHeight + "px";
         }
+        let nameMaterial = $("#cut-name").val() != undefined ? $("#cut-name").val() : '';
+        $.cookie("smct_nameMaterial" + AllNameOptionSelected, nameMaterial, {
+            expires: 365
+        });
     });
     //КЛИК НА КНОПКУ TOP-DROP
     $(".top-drop").on("click", (function() {
         $(this).toggleClass("active")
     }))
     $(".add-lang").click((function() {
-        $(".slide-form").slideDown("fast"), $(".top-drop li").find("a, span").addClass("active")
+        $(".slide-form").slideDown("fast"), $(".top-drop li").find("a, span").addClass("active");
+        $(".materialInput").val($('.selectMaterial option:selected').html())
+        $(".typeInput").val($('.selectType option:selected').html())
     }))
+    $(".remove-lang").click((function() {
+        $(".modal")[0].style.display = 'flex'
+        $(".modal_content_chooseDelCookie")[0].style.display = 'flex'
+        console.log($.cookie("smct_selectMaterial").split(',').filter(e => e != $(".selectMaterial option:selected").html()).join(","))
+        // delColor = $.cookie($(".selectMaterial option:selected").html() + $(".selectType option:selected").html() + "smct_selectColor" , $.cookie($(".selectMaterial option:selected").html() + $(".selectType option:selected").html() + "smct_selectColor").split(',').filter(e => e != $(".selectColor option:selected").html()).join(",") , {
+        //     extends:365
+        // })
+        // delType = $.cookie($(".selectMaterial option:selected").html() + "smct_selectType" , $.cookie($(".selectMaterial option:selected").html() + "smct_selectType").split(',').filter(e => e != $(".selectType option:selected").html()).join(",") , {
+        //     extends:365
+        // })
+        // delMaterial = $.cookie("smct_selectMaterial" , $.cookie("smct_selectMaterial").split(',').filter(e => e != $(".selectMaterial option:selected").html()).join(",") , {
+        //     extends:365
+        // })
+    }))
+    $(".button_removeCookieMaterial").on("click" , (e) =>{
+        let materialCheckbox = $("#materialCheckbox")[0].checked;
+        let typeCheckbox = $("#typeCheckbox")[0].checked;
+        let colorCheckbox = $("#colorCheckbox")[0].checked;
+        if(colorCheckbox == true){
+            $.cookie($(".selectMaterial option:selected").html() + $(".selectType option:selected").html() + "smct_selectColor" , $.cookie($(".selectMaterial option:selected").html() + $(".selectType option:selected").html() + "smct_selectColor").split(',').filter(e => e != $(".selectColor option:selected").html()).join(",") , {
+                extends:365
+            })
+        }
+        if(typeCheckbox == true){
+            $.cookie($(".selectMaterial option:selected").html() + $(".selectType option:selected").html() + "smct_selectColor" , '')
+            $.cookie($(".selectMaterial option:selected").html() + "smct_selectType" , $.cookie($(".selectMaterial option:selected").html() + "smct_selectType").split(',').filter(e => e != $(".selectType option:selected").html()).join(",") , {
+                extends:365
+            })
+        }
+        if(materialCheckbox == true){
+            $.cookie($(".selectMaterial option:selected").html() + $(".selectType option:selected").html() + "smct_selectColor" , '')
+            $.cookie($(".selectMaterial option:selected").html() + "smct_selectType" , '')
+            delMaterial = $.cookie("smct_selectMaterial" , $.cookie("smct_selectMaterial").split(',').filter(e => e != $(".selectMaterial option:selected").html()).join(",") , {
+                extends:365
+            })
+        }
+    })
     $(".close-forms").click((function() {
         $(".slide-form").slideUp("fast"), $(".top-drop li").find("a, span").removeClass("active")
+        $(".materialInput").val('');
+        $(".typeInput").val('');
+        $(".colorInput").val('');
     }))
-    let selectMaterial = []
     $(".support-submit").on("click" , (function(){
-        if($(".materialInput").val() !== '' && $(".materialInput").val() !== null){
+        let materialUse = false;
+        let typeUse = false;
+        let colorUse = false;
+        $(".selectMaterial option").each((index , element) =>{
+            if(element.value.toUpperCase() == $(".materialInput").val().toUpperCase()){
+                materialUse = true;
+            }
+        })
+        $(".selectType option").each((index , element) =>{
+            if(element.value.toUpperCase() == $(".typeInput").val().toUpperCase()){
+                typeUse = true;
+            }
+        })
+        $(".selectColor option").each((index , element) =>{
+            if(element.value.toUpperCase() == $(".colorInput").val().toUpperCase()){
+                colorUse = true;
+            }
+        })
+        if($(".materialInput").val() !== '' && $(".materialInput").val() !== null && materialUse == false){
             $("<option>" + $(".materialInput").val() +"</option>").appendTo(".selectMaterial")
             $('.selectMaterial option:last').prop('selected', true);
-            $(".materialInput").val('')
+            let selectMaterial = $.cookie("smct_selectMaterial");
+            if(selectMaterial == undefined){
+                selectMaterial = $('.materialInput').val() + ",";
+                $.cookie("smct_selectMaterial", selectMaterial, {
+                    expires: 365
+                });
+            }else{
+                selectMaterial += $('.materialInput').val() + ",";
+                $.cookie("smct_selectMaterial", selectMaterial, {
+                    expires: 365
+                });
+            }
+            selectedCookie()
         }
-        $('.selectMaterial option:selected').html()
-        if($(".otherInput").val() !== '' && $(".otherInput").val() !== null){
-            $("<option>" + $(".otherInput").val() +"</option>").appendTo(".selectType")
+        if($(".materialInput").val() !== '' && $(".materialInput").val() !== null && $(".typeInput").val() !== '' && $(".typeInput").val() !== null && typeUse == false){
+            $("<option>" + $(".typeInput").val() +"</option>").appendTo(".selectType")
             $(".selectType option:last").prop('selected' , true)
-            $(".otherInput").val('')
+            let selectType = $.cookie($(".materialInput").val() + "smct_selectType");
+            if(selectType == undefined){
+                selectType = $('.typeInput').val() + ",";
+                $.cookie($(".materialInput").val() + "smct_selectType", selectType, {
+                    expires: 365
+                });
+            }else{
+                selectType += $('.typeInput').val() + ",";
+                $.cookie($(".materialInput").val() + "smct_selectType", selectType, {
+                    expires: 365
+                });
+            }
+            selectedCookie()
         }
-        if($(".colorInput").val() !== '' && $(".colorInput").val() !== null){
+        if($(".materialInput").val() !== '' && $(".materialInput").val() !== null && $(".typeInput").val() !== '' && $(".typeInput").val() !== null && $(".colorInput").val() !== '' && $(".colorInput").val() !== null && colorUse == false){
             $("<option>" + $(".colorInput").val() +"</option>").appendTo(".selectColor")
             $(".selectColor option:last").prop('selected' , true);
-            $(".colorInput").val('')
+            let selectColor = $.cookie($(".materialInput").val() + $(".typeInput").val() + "smct_selectColor");
+            if(selectColor == undefined){
+                selectColor = $('.colorInput').val() + ",";
+                $.cookie($(".materialInput").val() + $(".typeInput").val() + "smct_selectColor", selectColor, {
+                    expires: 365
+                });
+            }else{
+                selectColor += $('.colorInput').val() + ",";
+                $.cookie($(".materialInput").val() + $(".typeInput").val() + "smct_selectColor", selectColor, {
+                    expires: 365
+                });
+            }
+            selectedCookie()
         }
-        let selectMaterial = ""
-        $('.selectMaterial option').each((index , elem) =>{
-            selectMaterial += elem.value + ","
-        })
-        selectMaterial = selectMaterial.slice(0, -1) 
-        console.log(selectMaterial)
-        return false;
+        if(($(".materialInput").val() !== '' && $(".materialInput").val() !== null && materialUse == false) || ($(".materialInput").val() !== '' && $(".materialInput").val() !== null && $(".typeInput").val() !== '' && $(".typeInput").val() !== null && typeUse == false) || ($(".materialInput").val() !== '' && $(".materialInput").val() !== null && $(".typeInput").val() !== '' && $(".typeInput").val() !== null && $(".colorInput").val() !== '' && $(".colorInput").val() !== null && colorUse == false)){
+            $(".slide-form").slideUp("fast"), $(".top-drop li").find("a, span").removeClass("active")
+            $(".materialInput").val('');
+            $(".typeInput").val('');
+            $(".colorInput").val('');
+            location.reload()
+        }
+        return false
     }))
+    $(".selectMaterial").on("change" , () =>{
+        let selectMaterialSelected = $(".selectMaterial option:selected").html();
+        $.cookie("smct_selectMaterialSelected", selectMaterialSelected, {
+            expires: 365
+        });
+        location.reload()
+    })
+    $(".selectType").on("change" , () =>{
+        selectedCookie()
+        location.reload()
+    })
+    $(".selectColor").on("change" , () =>{
+        selectedCookie()
+        location.reload()
+    })
     
-  
     function l() {
         $(".pro-user .show_waste").addClass("active"), $(".waste").show()
     }
@@ -435,63 +475,128 @@ jQuery(document).ready(function(){
         $(window).scrollTop() + $(window).height() > $("#smartcut_res").offset().top - 30 && $(window).scrollTop() + $(window).height() < $("#smartcut_res").offset().top + $("#smartcut_res").height() ? $(".top").css("left", "calc(50% + " + ($("#smartcut_res").width() / 2 + 32) + "px)") : $(".top").css("left", "")
     }
     function i() {
-        let e, t, n, r, i = "", a = "" , selectMaterial = "";
+        let e, t, n, r, i = "", a = "";
+        
         $(".str_out").each((function() {
             e = $(this).find('input[name="l[]"]').val(), t = $(this).find('input[name="c[]"]').val(), id = encodeURIComponent($(this).find('input[name="id[]"]').val()), e > 0 && t > 0 && (i = i + e + "-" + t + "-" + id + ",")
         })), 
         $(".str_in").each((function() {
             n = $(this).find('input[name="l_in[]"]').val(), r = $(this).find('input[name="c_in[]"]').val(), ii = encodeURIComponent($(this).find('input[name="id_in[]"]').val()), n > 0 && r > 0 && (a = a + n + "-" + r + "-" + ii + ",")
         })),
-        $('.selectMaterial option').each((index , elem) =>{
-            selectMaterial += elem.value + ","
-        }),
         i = i.slice(0, -1), 
-        a = a.slice(0, -1), 
-        selectMaterial = selectMaterial.slice(0, -1),
-        $.cookie("smct_out", i, {
+        a = a.slice(0, -1),
+        $.cookie("smct_out" + AllNameOptionSelected, i, {
             expires: 365
         }), 
-        $.cookie("smct_in", a, {
+        $.cookie("smct_in" + AllNameOptionSelected, a, {
             expires: 365
         }), 
-        $.cookie("smct_l", $('input[name="l_zag"]').val(), {
+        $.cookie("smct_l" + AllNameOptionSelected, $('input[name="l_zag"]').val(), {
             expires: 365
         }), 
-        $.cookie("smct_tdisk", $('input[name="t_disk"]').val(), {
+        $.cookie("smct_tdisk" + AllNameOptionSelected, $('input[name="t_disk"]').val(), {
             expires: 365
         }), 
-        $.cookie("smct_l_zag_id", $('input[name="l_zag_id"]').val(), {
+        $.cookie("smct_l_zag_id" + AllNameOptionSelected, $('input[name="l_zag_id"]').val(), {
             expires: 365
         }), 
-        $.cookie("smct_ed", $('input[name="ed"]').val(), {
+        $.cookie("smct_ed" + AllNameOptionSelected, $('input[name="ed"]').val(), {
             expires: 365
         }),
-        $.cookie("smct_usefulRemainsInput", $('input[name="usefulRemainsInput"]').val(), {
+        $.cookie("smct_usefulRemainsInput" + AllNameOptionSelected, $('input[name="usefulRemainsInput"]').val(), {
             expires: 365
         });
-        // $.cookie("smct_topBar", , {
-        //     expires: 365
-        // });
     }
     function removeCookieSmct_out(){
-      $.cookie("smct_out", '', {
+      $.cookie("smct_out" + AllNameOptionSelected, '', {
           expires: 365
       })
     }
     function removeCookieSmct_in(){
-      $.cookie("smct_in", '', {
+      $.cookie("smct_in" + AllNameOptionSelected, '', {
           expires: 365
       }), 
-      $.cookie("smct_l", '', {
+      $.cookie("smct_l" + AllNameOptionSelected, '6000', {
           expires: 365
       }), 
-      $.cookie("smct_l_zag_id", '', {
+      $.cookie("smct_l_zag_id" + AllNameOptionSelected, '', {
           expires: 365
       })
     }
+    function selectedCookie(){
+        let selectMaterialSelected = $(".selectMaterial option:selected").html() != undefined ? $(".selectMaterial option:selected").html() : '';
+        let selectTypeSelected = $(".selectType option:selected").html() != undefined ? $(".selectType option:selected").html() : '';
+        let selectColorSelected = $(".selectColor option:selected").html() != undefined ? $(".selectColor option:selected").html() : '';
+        $.cookie("smct_selectMaterialSelected", selectMaterialSelected, {
+            expires: 365
+        });
+        $.cookie("smct_selectTypeSelected", selectTypeSelected, {
+            expires: 365
+        });
+        $.cookie("smct_selectColorSelected", selectColorSelected, {
+            expires: 365
+        });
+    }
     function cookieLoad(){
-        if (null != $.cookie("smct_l") && "" != $.cookie("smct_l") && $('input[name="l_zag"]').val($.cookie("smct_l")), null != $.cookie("smct_tdisk") && "" != $.cookie("smct_tdisk") && $('input[name="t_disk"]').val($.cookie("smct_tdisk")), null != $.cookie("smct_usefulRemainsInput") && "" != $.cookie("smct_usefulRemainsInput") && $('input[name="usefulRemainsInput"]').val($.cookie('smct_usefulRemainsInput')), null != $.cookie("smct_l_zag_id") && "" != $.cookie("smct_l_zag_id") && $('input[name="l_zag_id"]').val($.cookie("smct_l_zag_id")), null != $.cookie("smct_ed") && "" != $.cookie("smct_ed") && $('input[name="ed"]').val($.cookie("smct_ed")), null != $.cookie("smct_out") && $.cookie("smct_out").length > 3) {
-            nc = $.cookie("smct_out").split(",");
+        if('undefined' != $.cookie("smct_selectMaterial") && null != $.cookie("smct_selectMaterial") && $.cookie("smct_selectMaterial").length > 0 && $.cookie("smct_selectMaterial") != ''){
+            let choosedElem =  $.cookie("smct_selectMaterialSelected");
+            let nci =  $.cookie("smct_selectMaterial").split(',').slice(0 , -1);
+            for(let n = 0; n < nci.length; ++n){
+                $("<option value=" + nci[n] + ">" + nci[n] + "</option>").appendTo(".selectMaterial")
+            }
+            $(".selectMaterial option").each((index , element) =>{
+                if(element.value == choosedElem){
+                    $(".selectMaterial option[value=\"" + choosedElem + '\"').prop("selected" , true)
+                }
+            })
+
+        }
+        let selectMaterialSelected = $(".selectMaterial option:selected").html() != undefined ? $(".selectMaterial option:selected").html() : '';
+        $.cookie("smct_selectMaterialSelected", selectMaterialSelected, {
+            expires: 365
+        });
+        /////////////////////////////////////////////////////////////////
+        let smct_selectType = $(".selectMaterial option:selected").html() + "smct_selectType";
+        if('undefined' != $.cookie(smct_selectType) && null != $.cookie(smct_selectType) && $.cookie(smct_selectType).length > 0 && $.cookie(smct_selectType) != ''){
+            let choosedElem =  $.cookie("smct_selectTypeSelected");
+            let nci =  $.cookie(smct_selectType).split(',').slice(0 , -1);
+            for(let n = 0; n < nci.length; ++n){
+                $("<option value=" + nci[n] + ">" + nci[n] + "</option>").appendTo(".selectType")
+            }
+            $(".selectType option").each((index , element) =>{
+                if(element.value == choosedElem){
+                    $(".selectType option[value=\"" + choosedElem + "\"]").prop("selected" , true)
+                }
+            })
+
+        }
+        let selectTypeSelected = $(".selectType option:selected").html() != undefined ? $(".selectType option:selected").html() : '';
+        $.cookie("smct_selectTypeSelected", selectTypeSelected, {
+            expires: 365
+        });
+        /////////////////////////////////////////////////////////////////
+        let smct_selectColor = $(".selectMaterial option:selected").html() + $(".selectType option:selected").html() + "smct_selectColor";
+        if('undefined' != $.cookie(smct_selectColor) && null != $.cookie(smct_selectColor) && $.cookie(smct_selectColor).length > 0 && $.cookie(smct_selectColor) != ''){
+            let choosedElem =  $.cookie("smct_selectColorSelected");
+            let nci =  $.cookie(smct_selectColor).split(',').slice(0 , -1);
+            for(let n = 0; n < nci.length; ++n){
+                $("<option value=" + nci[n] + ">" + nci[n] + "</option>").appendTo(".selectColor")
+            }
+            $(".selectColor option").each((index , element) =>{
+                if(element.value == choosedElem){
+                    $(".selectColor option[value=\"" + choosedElem + "\"]").prop("selected" , true)
+                }
+            })
+
+        }
+        let selectColorSelected = $(".selectColor option:selected").html() != undefined ? $(".selectColor option:selected").html() : '';
+        $.cookie("smct_selectColorSelected", selectColorSelected, {
+            expires: 365
+        });
+        /////////////////////////////////////////////////////////////////
+        let AllNameOptionSelected = selectMaterialSelected + selectTypeSelected + selectColorSelected;
+        if (null != $.cookie("smct_l" + AllNameOptionSelected) && "" != $.cookie("smct_l" + AllNameOptionSelected) && $('input[name="l_zag"]').val($.cookie("smct_l" + AllNameOptionSelected)), null != $.cookie("smct_tdisk" + AllNameOptionSelected) && "" != $.cookie("smct_tdisk" + AllNameOptionSelected) && $('input[name="t_disk"]').val($.cookie("smct_tdisk" + AllNameOptionSelected)), null != $.cookie("smct_usefulRemainsInput" + AllNameOptionSelected) && "" != $.cookie("smct_usefulRemainsInput" + AllNameOptionSelected) && $('input[name="usefulRemainsInput"]').val($.cookie('smct_usefulRemainsInput' + AllNameOptionSelected)), null != $.cookie("smct_l_zag_id" + AllNameOptionSelected) && "" != $.cookie("smct_l_zag_id" + AllNameOptionSelected) && $('input[name="l_zag_id"]').val($.cookie("smct_l_zag_id" + AllNameOptionSelected)), null != $.cookie("smct_ed" + AllNameOptionSelected) && "" != $.cookie("smct_ed" + AllNameOptionSelected) && $('input[name="ed"]').val($.cookie("smct_ed" + AllNameOptionSelected)), null != $.cookie("smct_out" + AllNameOptionSelected) && $.cookie("smct_out" + AllNameOptionSelected).length > 3) {
+            nc = $.cookie("smct_out" + AllNameOptionSelected).split(",");
             let t = '<tr class="str_out">' + $(".str_out:last").html() + "</tr>";
             nc.length > 0 && $(".str_out").remove();
             for (let n = 0; n < nc.length; ++n) {
@@ -503,8 +608,8 @@ jQuery(document).ready(function(){
             }
             $(".out > tbody > tr:last").before(t), r(), s()
         }
-        if (null != $.cookie("smct_in") && $.cookie("smct_in").length > 3) {
-            nci = $.cookie("smct_in").split(",");
+        if (null != $.cookie("smct_in" + AllNameOptionSelected) && $.cookie("smct_in" + AllNameOptionSelected).length > 3) {
+            nci = $.cookie("smct_in" + AllNameOptionSelected).split(",");
             var o = '<tr class="str_in">' + $(".str_in:last").html() + "</tr>";
             nci.length > 0 && $(".str_in").remove();
             for (let n = 0; n < nci.length; ++n) {
@@ -516,16 +621,33 @@ jQuery(document).ready(function(){
             }
             $(".in > tbody > tr:last").before(o), r(), a()
         }
-    }
+        if(null != $.cookie("smct_colorVal" + AllNameOptionSelected)){
+            $(".inputColor").val($.cookie("smct_colorVal" + AllNameOptionSelected))
+        }
 
+    }
+    function hexToDec(hex) {
+        var result = 0, digitValue;
+        hex = hex.toLowerCase();
+        for (var i = 0; i < hex.length; i++) {
+            digitValue = '0123456789abcdef'.indexOf(hex[i]);
+            result = result * 16 + digitValue;
+        }
+        return result;
+    }
     function smartcutRes(){
         let UsedOtkhod = 0;
-
-        $('<label class="cutting_name" spellcheck="false" style="min-height: 320px;" contenteditable="true">'
-            + ('<textarea id="cut-name" placeholder="Название и описание" value style="">'+'</textarea>')
-        +'</label>').appendTo(".smartcut_res")
-
         if(RenderArray.reduce((a , b) => a += b.str_in_val * b.str_in_counter , 0) !== 0 ){
+            if('undefined' != $.cookie("smct_nameMaterial" + AllNameOptionSelected) && null != $.cookie("smct_nameMaterial" + AllNameOptionSelected)){
+                $('<label class="cutting_name" spellcheck="false" style="min-height: 320px;" contenteditable="true">'
+                    + ('<textarea id="cut-name" placeholder="Название и описание" value style="">'+ $.cookie("smct_nameMaterial" + AllNameOptionSelected) + '</textarea>')
+                +'</label>').appendTo(".smartcut_res")
+            }else{
+                $('<label class="cutting_name" spellcheck="false" style="min-height: 320px;" contenteditable="true">'
+                    + ('<textarea id="cut-name" placeholder="Название и описание" value style="">'+'</textarea>')
+                +'</label>').appendTo(".smartcut_res")
+            }
+
             $('<b class="id-in-map" style="margin:0 0 20px; padding:0; display:block;">' + 'Схема раскроя:' +'</b>').appendTo(".smartcut_res");
 
             //СОЗДАНИЕ TABLE MAP
@@ -555,23 +677,23 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
                                             if(pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
                                                 )
                                             }
                                         }
@@ -579,23 +701,23 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
                                             if(pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
                                                 )
                                             }
                                         }
@@ -657,25 +779,25 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }
                                             else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
                                             if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }
                                             else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '(x' + userCounter + ')' + '</td>'
                                                 )
                                             }
                                         }
@@ -683,25 +805,25 @@ jQuery(document).ready(function(){
                                         if(usedMaterialName !== ''){
                                             if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }
                                             else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + ' №' + usedMaterialName + '</td>'
                                                 )
                                             }
                                         }else{
                                             if(((element.str_in_val - usedMaterial * element.str_out.length - pilkaSrez * (element.str_out.length - 1)) !== 0 || (index !== element.str_out.length - 1)) && pilkaSrez !== 0){
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
                                                     +'<td id="pilkaSrez">' + '</td>'
                                                 )
                                             }
                                             else{
                                                 return (
-                                                    '<td colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
+                                                    '<td class="tdUsedMaterial" colspan=\"' + userCounter +'\"' + 'style=\"width:' + widthUsedMaterial + '%' +'\"' + '>' + usedMaterial + $('input[name="ed"]').val() + '</td>'
                                                 )
                                             }
                                         }
@@ -762,6 +884,11 @@ jQuery(document).ready(function(){
                     )
                 }
             })
+            let colorBackground = $(".inputColor").val();
+            $(".tdUsedMaterial").css("background" , colorBackground)
+            if(hexToDec(colorBackground.slice(1)) < (16777215 / 2) || (hexToDec("0000" + colorBackground.slice(5)) < (255 / 2.5) && hexToDec("00" + colorBackground.slice(3)) < (65280 / 2.5))){
+                $(".tdUsedMaterial").css("color" , '#ffffff')
+            }
     
             +$('<br/>').appendTo(".smartcut_res");
             +$('<br/>').appendTo(".smartcut_res");
@@ -797,7 +924,6 @@ jQuery(document).ready(function(){
                     return '<br/>' + '<string>' + element.val + $('input[name="ed"]').val() + ' - ' + element.counter + ' шт. ' + element.materialName + '</string>'
                 }).join('')
             +'</div>').appendTo(".smartcut_res")
-            console.log(usedInputL)
 
         }
   

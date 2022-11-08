@@ -37,33 +37,48 @@
 	<div class="main">
 		<nav class="top-bar">
 			<select class="selectMaterial">
-				<option>Elex</option>
 			</select>
 			<select class="selectType">
-				<option>Рама</option>
 			</select>
 			<select class="selectColor">
-				<option>Белый</option>
 			</select>
 			<li data-open=".support" class="add-lang"><span class="active">+ Добавить</span></li>
+			<li data-open=".support-submit" class="remove-lang"><span class="active">- Удалить</span></li>
 		</nav>
 
 		<div class="modal">
-			<div class="modal__content">
+			<div class="modal_content_yesOrNot">
 				<h1>Остатки будут удалены и заного<br/>перезаписаны</h1>
 				<form class="buttons">
 					<button class="button_yes">Да</button>
 					<button class="button_no">Нет</button>
 				</form>
 			</div>
+			<form class="modal_content_chooseDelCookie">
+				<div class="materialChecked">
+					<label for="materialCheckbox">Удалить материал</label>
+					<input type="checkbox" id="materialCheckbox">
+				</div>
+				<div class="typeChecked">
+					<label for="typeCheckbox">Удалить тип</label>
+					<input type="checkbox" id="typeCheckbox">
+				</div>
+				<div class="colorChecked">
+					<label for="colorCheckbox">Удалить цвет</label>
+					<input type="checkbox" id="colorCheckbox">
+				</div>
+				<button class="button_removeCookieMaterial">Удалить</button>
+			</form>
+		</div>
+			</div>
 		</div>
 		<div class="content-640 user-email"></div>
 		<div class="user-forms">
 			<form action="" class="support slide-form" style="display: none;">
 				<p class="text-left"></p>
-				<input type="text" class="support-theme materialInput" placeholder="Материал" value="">
-				<input type="text" class="support-theme colorInput" placeholder="Тип Материала" value="">
-				<input type="text" class="support-theme otherInput" placeholder="Цвет" value="">
+				<input type="text" class="support-theme materialInput" placeholder="Материал" value="" required>
+				<input type="text" class="support-theme typeInput" placeholder="Тип Материала" value="">
+				<input type="text" class="support-theme colorInput" placeholder="Цвет" value="">
 				<button class="support-submit button ">Добавить</button>
 			</form>
 
@@ -221,7 +236,7 @@
 			<button class="show_sizemarker button">Размеры<i class="icon-tab"></i></button>
 			<button class="show_waste button">Остатки</button>
 			<button class="on-full-width button"><span><i class="icon-resize-full"></i></span><span style="display: none;"><i class="icon-resize-small"></i></span></button>
-			<button class="print button"><i class="icon-print"></i>Печать</button>
+			<input type="color" class="inputColor button" value="#FEFFD0"></input>
 			<button class="pdf button">
 				<div class="spinner-border spinner-border-sm" role="status"></div>
 				<i class="icon-file-pdf"></i>.PDF
