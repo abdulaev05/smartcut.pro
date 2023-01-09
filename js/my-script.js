@@ -338,12 +338,12 @@ jQuery(document).ready(function(){
             }
         })
         $(".selectType option").each((index , element) =>{
-            if(element.value.toUpperCase() == $(".typeInput").val().toUpperCase()){
+            if(element.value.toUpperCase() == $(".typeInput").val().toUpperCase() && materialUse == true){
                 typeUse = true;
             }
         })
         $(".selectColor option").each((index , element) =>{
-            if(element.value.toUpperCase() == $(".colorInput").val().toUpperCase()){
+            if(element.value.toUpperCase() == $(".colorInput").val().toUpperCase() && materialUse == true && typeUse == true){
                 colorUse = true;
             }
         })
